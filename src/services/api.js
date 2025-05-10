@@ -15,20 +15,25 @@ export async function fetchRecipes(page = 1, limit = 10) {
 }
 
 /**
- * Search recipes
+ * Search recipes by query and category
  */
-export async function searchRecipes(query, category = '', page = 1, limit = 10) {
+export async function searchRecipes(query = '', category = '', page = 1, limit = 10) {
   try {
     let url = `${API_URL}/search?page=${page}&limit=${limit}`;
     
     if (query) url += `&query=${encodeURIComponent(query)}`;
     if (category) url += `&category=${encodeURIComponent(category)}`;
     
+    console.log('Searching with URL:', url);
+    
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Network response was not ok. Status: ${response.status}, Details: ${errorText}`);
+    }
     return await response.json();
   } catch (error) {
-    console.error('Error searching recipes:', error);
+    console.error('Search error details:', error);
     return { data: [], total: 0, page: 1, totalPages: 0 };
   }
 }
