@@ -7,9 +7,10 @@ import { Toaster } from "@/components/ui/toaster";
 const ibmPlexMono = IBM_Plex_Mono({
   variable: '--font-ibm-plex-mono',
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: ['400', '500', '700'], // Added 500 for medium if needed, 700 for bold
 });
 
+// General metadata for the app
 export const metadata: Metadata = {
   title: 'HowToCook',
   description: 'Learn how to cook delicious recipes step by step.',
@@ -24,13 +25,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          ibmPlexMono.variable,
-          'min-h-screen bg-background font-sans antialiased flex flex-col'
+          ibmPlexMono.variable, // Apply the font variable here
+          'min-h-screen bg-background text-foreground font-sans antialiased flex flex-col'
         )}
       >
-        <main className="flex-grow container mx-auto px-4 py-8">
+        {/* Removed Header */}
+        <main className="flex-grow w-full"> {/* Adjusted to w-full, page.tsx will handle its own centering and max-width */}
           {children}
         </main>
+        {/* Removed Footer */}
         <Toaster />
       </body>
     </html>

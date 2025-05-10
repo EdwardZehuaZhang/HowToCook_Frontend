@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { DotsThree, X, Asterisk } from '@phosphor-icons/react';
@@ -5,14 +7,23 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
+// It's good practice to define metadata in server components or layout.tsx.
+// For client components, if you need dynamic metadata, you might need a different approach
+// or keep static metadata in layout.tsx. For now, this static metadata object is fine,
+// but Next.js might prefer it in a parent server component or layout for page components.
+// However, `export const metadata` is usually for Server Components.
+// Since this is now a client component, this export might not work as expected for page-level metadata.
+// Let's comment it out for now, assuming metadata will be handled by layout.tsx or a parent server component.
+/*
 export const metadata: Metadata = {
   title: 'HowToCook - Recipe',
   description: 'Detailed recipe instructions for 酸梅汤（半成品加工）',
 };
+*/
 
 const recipeData = {
   pageTitle: "How to cook:",
-  recipeName: "酸梅汤（半成品加工）",
+  recipeName: "酸梅汤（半成品加工）", // Chinese placeholder value
   recipeLink: "https://github.com/Anduin2017/HowToCook/blob/master/dishes/drink/%E9%85%B8%E6%A2%85%E6%B1%A4%EF%BC%88%E5%8D%8A%E6%88%90%E5%93%81%E5%8A%A0%E5%B7%A5%EF%BC%89.md",
   imageUrl: "https://picsum.photos/332/131",
   imageAiHint: "chinese plum soup",
@@ -70,14 +81,24 @@ interface SectionProps {
   contentContainerClassName?: string;
 }
 
+// Using CSS variables for font sizes as per the provided HTML structure
+const recipeHeadingFontSize = '16px'; // For titles like "必备原料和工具"
+const recipeDescriptionFontSize = '12px'; // For smaller text like ingredients list
+
 const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassName, contentContainerClassName }) => {
   return (
     <div className="flex flex-col items-start gap-2 self-stretch w-full">
-      <div className={cn("text-base font-medium text-foreground", titleContainerClassName)}> {/* text-base is 16px */}
+      <div 
+        className={cn("font-medium text-foreground", titleContainerClassName)}
+        style={{ fontSize: recipeHeadingFontSize }} 
+      >
         {title}
       </div>
       <div className="self-stretch w-full h-px bg-foreground" />
-      <div className={cn("text-xs font-normal text-foreground leading-relaxed self-stretch", contentContainerClassName)}> {/* text-xs is 12px */}
+      <div 
+        className={cn("font-normal text-foreground leading-relaxed self-stretch", contentContainerClassName)}
+        style={{ fontSize: recipeDescriptionFontSize }}
+      >
         {children}
       </div>
     </div>
@@ -86,14 +107,17 @@ const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassN
 
 export default function HomePage() {
   return (
-    <div className="w-[375px] h-auto border border-solid border-border bg-card text-foreground font-sans mx-auto shadow-lg rounded-md py-4"> {/* Adjusted height to auto and added padding */}
-      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px]">
+    <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans"> {/* Removed fixed height, using auto for content flow. Removed py-4 as inner container has padding. */}
+      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[27px]"> {/* Added pb to match top padding for symmetry */}
         <div className="self-end">
           <DotsThree size={12} weight="fill" className="text-foreground" />
         </div>
 
         <div className="flex flex-col items-start gap-5 self-stretch w-full">
-          <h2 className="text-[21px] font-normal text-foreground">
+          <h2 
+            className="font-normal text-foreground"
+            style={{ fontSize: '21px' }} // "How to cook:"
+          >
             {recipeData.pageTitle}
           </h2>
 
@@ -103,10 +127,12 @@ export default function HomePage() {
                 href={recipeData.recipeLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[27px] font-normal text-foreground hover:underline"
+                className="font-normal text-foreground hover:underline"
+                style={{ fontSize: '27px' }} // "酸梅汤（半成品加工）"
               >
                 {recipeData.recipeName}
               </Link>
+              {/* Assuming X is a close button, it might need functionality later */}
               <X size={25} className="text-foreground cursor-pointer" />
             </div>
             <div className="self-stretch w-full h-px bg-foreground" />
@@ -117,20 +143,27 @@ export default function HomePage() {
               <Image
                 src={recipeData.imageUrl}
                 alt={recipeData.recipeName}
-                fill // layout="fill" is deprecated, use fill
-                style={{ objectFit: 'cover' }} // objectFit="cover" needs to be in style prop with fill
+                fill
+                style={{ objectFit: 'cover' }}
                 className="rounded"
                 data-ai-hint={recipeData.imageAiHint}
+                priority // Good for LCP images
               />
             </div>
 
             <div className="flex flex-col items-start gap-9 self-stretch w-full">
-              <p className="text-xs font-normal text-foreground leading-relaxed self-stretch"> {/* text-xs is 12px */}
+              <p 
+                className="font-normal text-foreground leading-relaxed self-stretch"
+                style={{ fontSize: recipeDescriptionFontSize }}
+              >
                 {recipeData.description}
               </p>
 
               <div className="inline-flex items-center">
-                <div className="text-base font-medium text-foreground"> {/* text-base is 16px */}
+                <div 
+                  className="font-medium text-foreground"
+                  style={{ fontSize: recipeHeadingFontSize }}
+                >
                   {recipeData.difficultyLabel}
                 </div>
                 <Asterisk size={21} weight="fill" className="text-foreground ml-1" />
@@ -161,7 +194,8 @@ export default function HomePage() {
               <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
                 <div>
                   {recipeData.procedure.map((line, index) => (
-                    <div key={index} dangerouslySetInnerHTML={{ __html: line.startsWith('<strong>') ? line : line.replace(/^(\d+\s?)/, '$1').replace(/&nbsp;/g, '\u00A0') }} className="whitespace-pre-wrap"/>
+                    // Using whitespace-pre-wrap to handle spaces and newlines correctly from __html
+                    <div key={index} dangerouslySetInnerHTML={{ __html: line.replace(/&nbsp;/g, '\u00A0') }} className="whitespace-pre-wrap"/>
                   ))}
                 </div>
               </Section>
