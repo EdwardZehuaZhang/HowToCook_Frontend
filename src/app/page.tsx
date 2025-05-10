@@ -1,180 +1,186 @@
+import React from 'react';
 import Image from 'next/image';
-import RecipeSection from '@/components/recipe/recipe-section';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Utensils, CookingPot, ListChecks, Percent, Info, Flame, ListOrdered, Calculator, CheckCircle, ExternalLink, Clock, Users } from 'lucide-react';
+import { MoreVertical, X, Asterisk } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
-// Placeholder data - In a real app, this would come from an API/AI flow
+export const metadata: Metadata = {
+  title: 'HowToCook - Recipe',
+  description: 'Detailed recipe instructions for 酸梅汤（半成品加工）',
+};
+
 const recipeData = {
-  title: "Delicious Spaghetti Carbonara",
-  imageUrl: "https://picsum.photos/1200/800",
-  imageAiHint: "pasta carbonara",
-  description: "A classic Italian pasta dish made with eggs, cheese, pancetta, and black pepper. Simple yet incredibly flavorful, perfect for a weeknight dinner or a special occasion.",
-  difficulty: "Medium",
-  prepTime: "15 minutes",
-  cookTime: "20 minutes",
-  servings: 4,
+  pageTitle: "How to cook:",
+  recipeName: "酸梅汤（半成品加工）",
+  recipeLink: "https://github.com/Anduin2017/HowToCook/blob/master/dishes/drink/%E9%85%B8%E6%A2%85%E6%B1%A4%EF%BC%88%E5%8D%8A%E6%88%90%E5%93%81%E5%8A%A0%E5%B7%A5%EF%BC%89.md",
+  imageUrl: "https://picsum.photos/332/131", // Standard placeholder
+  imageAiHint: "chinese plum soup",
+  description: "砂糖椰子冰沙是一种制作极其快速方便的饮料，若原料选择得当则口感丰富。然而制作时动静较大，适合白天在家制作以作为下午茶。",
+  difficultyLabel: "预估烹饪难度：",
+  materialsTitle: "必备原料和工具",
   materials: [
-    { name: "Spaghetti", quantity: "400g" },
-    { name: "Pancetta or Guanciale", quantity: "150g", note: "cubed" },
-    { name: "Large Eggs", quantity: "3", note: "plus 1 yolk" },
-    { name: "Pecorino Romano Cheese", quantity: "50g", note: "grated, plus extra for serving" },
-    { name: "Parmesan Cheese", quantity: "25g", note: "grated" },
-    { name: "Black Pepper", quantity: "to taste", note: "freshly ground" },
-    { name: "Salt", quantity: "to taste" },
+    "酸梅晶固体饮料",
+    "方糖（可选）",
+    "北京二锅头酒（可选）",
   ],
-  tools: [
-    "Large pot for pasta",
-    "Large skillet or frying pan",
-    "Whisk",
-    "Cheese grater",
-    "Tongs",
-  ],
-  procedure: [
-    "Cook the spaghetti in a large pot of boiling salted water until al dente. Reserve about 1 cup of pasta water before draining.",
-    "While the pasta cooks, heat the cubed pancetta in a large skillet over medium heat until crispy. Remove from heat and set aside. Do not discard the rendered fat.",
-    "In a bowl, whisk together the eggs, egg yolk, grated Pecorino Romano, and Parmesan cheese. Season with a generous amount of freshly ground black pepper.",
-    "Drain the pasta and immediately add it to the skillet with the pancetta and rendered fat. Toss to combine.",
-    "Working quickly, pour the egg and cheese mixture over the hot pasta, stirring vigorously. If the sauce is too thick, add a little reserved pasta water until it reaches a creamy consistency. Be careful not to scramble the eggs; the heat from the pasta should cook them gently.",
-    "Serve immediately, garnished with extra grated cheese and black pepper.",
-  ],
+  calculationsTitle: "计算",
   calculations: [
-    { label: "Calories per serving", value: "~600 kcal", icon: Flame },
-    { label: "Protein", value: "~30g", icon: Percent },
-    { label: "Fat", value: "~30g", icon: Percent },
-    { label: "Carbohydrates", value: "~50g", icon: Percent },
+    "一杯分量，约 350 毫升（含冰）",
+    "",
+    "金酒 30~40 毫升",
+    "汤力水气泡水 1 罐",
+    "柠檬 1 个",
+    "冰块 100 克",
   ],
-  extraInfo: {
-    title: "Chef's Tips",
-    content: "For an authentic Carbonara, avoid using cream. The creaminess comes from the emulsification of egg yolks, cheese, and pasta water. Use high-quality ingredients for the best flavor. Guanciale (cured pork jowl) is traditional, but pancetta is a good substitute."
-  }
+  procedureTitle: "操作",
+  procedure: [
+    "<strong>柠檬的处理</strong>",
+    "",
+    "1 将柠檬对半切（刀方向垂直于柠檬的头尾连线），并从其中的",
+    "&nbsp;&nbsp;一半中切取一片柠檬备用",
+    "2 再次将柠檬对半切，将得到的 4 角柠檬用压汁器压出柠檬汁置",
+    "&nbsp;&nbsp;于容器中备用",
+    "",
+    "<strong>正式调配</strong>",
+    "",
+    "1 选择一个杯子，建议使用容量在 350~400 毫升的透明玻璃杯",
+    "2 将 100 克冰块放置在杯底",
+    "3 倒入 30~40 毫升金酒",
+    "4 倒入 15 毫升柠檬汁（如果喜酸可以加多点或全加）",
+    "5 用勺子搅拌均匀",
+    "6 将之前准备的一片柠檬放置好",
+    "7 缓慢沿杯壁注入汤力水直至满杯（不要倒在冰上，避免起泡流失）",
+    "8 用勺子轻轻上下提拉将液体搅拌均匀（不要旋转搅拌，避免起泡流失）",
+    "9 在液面放置好装饰用的绿叶（可选）",
+  ],
+  extraInfoTitle: "附加内容",
+  extraInfo: [
+    "如果没有准备方糖或北京二锅头，可以省略操作中的第 4 步或第 5 步。",
+    "放入冰箱冷藏后再饮用效果更佳。",
+    "饮酒请勿驾车。",
+    "如果您遵循本指南的制作流程而发现有问题或可以改进的流程，请提出 Issue 或 Pull request 。",
+  ],
+};
+
+interface SectionProps {
+  title: string;
+  children: React.ReactNode;
+  titleContainerClassName?: string;
+  contentContainerClassName?: string;
+}
+
+const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassName, contentContainerClassName }) => {
+  return (
+    <div className="flex flex-col items-start gap-2 self-stretch w-full">
+      <div className={cn("text-base font-medium text-foreground", titleContainerClassName)}>
+        {title}
+      </div>
+      <div className="self-stretch w-full h-px bg-foreground" />
+      <div className={cn("text-sm font-normal text-foreground leading-relaxed self-stretch", contentContainerClassName)}>
+        {children}
+      </div>
+    </div>
+  );
 };
 
 export default function HomePage() {
   return (
-    <div className="space-y-12">
-      {/* Hero Section with Image and Title */}
-      <section className="relative rounded-lg overflow-hidden shadow-2xl">
-        <Image
-          src={recipeData.imageUrl}
-          alt={recipeData.title}
-          width={1200}
-          height={600}
-          className="w-full h-auto object-cover aspect-[2/1] md:aspect-[3/1]"
-          data-ai-hint={recipeData.imageAiHint}
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 p-6 md:p-10">
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
-            {recipeData.title}
-          </h1>
-          <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="text-sm backdrop-blur-sm bg-white/20 text-white border-white/30">
-              <Clock className="mr-1.5 h-4 w-4" /> {recipeData.prepTime} Prep
-            </Badge>
-            <Badge variant="secondary" className="text-sm backdrop-blur-sm bg-white/20 text-white border-white/30">
-              <CookingPot className="mr-1.5 h-4 w-4" /> {recipeData.cookTime} Cook
-            </Badge>
-            <Badge variant="secondary" className="text-sm backdrop-blur-sm bg-white/20 text-white border-white/30">
-              <Users className="mr-1.5 h-4 w-4" /> Serves {recipeData.servings}
-            </Badge>
+    <div className="w-[375px] h-[1385px] border border-solid border-border bg-card text-foreground font-sans mx-auto shadow-lg rounded-md">
+      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px]">
+        <div className="self-end">
+          <MoreVertical className="w-[29px] h-[29px] text-foreground" />
+        </div>
+
+        <div className="flex flex-col items-start gap-5 self-stretch w-full">
+          <h2 className="text-xl font-normal text-foreground">
+            {recipeData.pageTitle}
+          </h2>
+
+          <div className="flex flex-col items-start gap-1.5 self-stretch w-full">
+            <div className="flex items-center justify-between self-stretch w-full">
+              <Link
+                href={recipeData.recipeLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-lg font-normal text-foreground hover:underline"
+              >
+                {recipeData.recipeName}
+              </Link>
+              <X className="w-[25px] h-[25px] text-foreground cursor-pointer" />
+            </div>
+            <div className="self-stretch w-full h-px bg-foreground" />
+          </div>
+          
+          <div className="flex flex-col items-start gap-3.5 self-stretch w-full">
+            <div className="relative self-stretch w-full h-[131px]">
+              <Image
+                src={recipeData.imageUrl}
+                alt={recipeData.recipeName}
+                layout="fill"
+                objectFit="cover"
+                className="rounded"
+                data-ai-hint={recipeData.imageAiHint}
+              />
+            </div>
+
+            <div className="flex flex-col items-start gap-9 self-stretch w-full">
+              <p className="text-sm font-normal text-foreground leading-relaxed self-stretch">
+                {recipeData.description}
+              </p>
+
+              <div className="inline-flex items-center">
+                <div className="text-base font-medium text-foreground">
+                  {recipeData.difficultyLabel}
+                </div>
+                <Asterisk className="w-[21px] h-[21px] text-foreground ml-1" />
+              </div>
+
+              <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto"> {/* Adjusted w-28 to w-auto for flexibility */}
+                <div>
+                  {recipeData.materials.map((item, index) => (
+                    <React.Fragment key={index}>
+                      <span dangerouslySetInnerHTML={{ __html: item }} />
+                      {index < recipeData.materials.length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </Section>
+
+              <Section title={recipeData.calculationsTitle} titleContainerClassName="w-auto">
+                <div>
+                  {recipeData.calculations.map((line, index) => (
+                    <React.Fragment key={index}>
+                      <span dangerouslySetInnerHTML={{ __html: line }} />
+                      {/* Consistent line break handling */}
+                      {(index < recipeData.calculations.length - 1 || line === "") && <br />}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </Section>
+              
+              <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
+                <div>
+                  {recipeData.procedure.map((line, index) => (
+                    <div key={index} dangerouslySetInnerHTML={{ __html: line.startsWith('<strong>') ? line : line.replace(/^(\d+\s?)/, '$1').replace(/&nbsp;/g, '\u00A0') }} className="whitespace-pre-wrap"/>
+                  ))}
+                </div>
+              </Section>
+
+              <Section title={recipeData.extraInfoTitle} titleContainerClassName="w-auto">
+                <div>
+                  {recipeData.extraInfo.map((line, index) => (
+                    <React.Fragment key={index}>
+                      <span dangerouslySetInnerHTML={{ __html: line }} />
+                      {index < recipeData.extraInfo.length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </Section>
+            </div>
           </div>
         </div>
-      </section>
-
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left column / Main column on smaller screens */}
-        <div className="lg:col-span-2 space-y-8">
-          <RecipeSection title="Description" icon={Info}>
-            <p className="text-lg leading-relaxed">{recipeData.description}</p>
-          </RecipeSection>
-
-          <RecipeSection title="Ingredients" icon={ListChecks} cardContentClassName="p-0">
-            <ul className="divide-y divide-border">
-              {recipeData.materials.map((item, index) => (
-                <li key={index} className="p-4 flex justify-between items-center hover:bg-accent/50 transition-colors">
-                  <div>
-                    <span className="font-medium text-foreground">{item.name}</span>
-                    {item.note && <span className="text-xs text-muted-foreground ml-2">({item.note})</span>}
-                  </div>
-                  <span className="text-muted-foreground">{item.quantity}</span>
-                </li>
-              ))}
-            </ul>
-          </RecipeSection>
-
-          <RecipeSection title="Tools Needed" icon={Utensils} cardContentClassName="p-0">
-            <ul className="divide-y divide-border">
-              {recipeData.tools.map((tool, index) => (
-                <li key={index} className="p-4 flex items-center gap-2 hover:bg-accent/50 transition-colors">
-                  <CheckCircle className="h-5 w-5 text-primary" />
-                  <span className="text-foreground">{tool}</span>
-                </li>
-              ))}
-            </ul>
-          </RecipeSection>
-        </div>
-
-        {/* Right column / Sidebar on larger screens */}
-        <aside className="space-y-8 lg:sticky lg:top-24 self-start">
-          <RecipeSection title="Difficulty" icon={Flame}>
-            <Badge variant="outline" className="text-lg border-primary text-primary py-1 px-3">
-              {recipeData.difficulty}
-            </Badge>
-          </RecipeSection>
-
-          <RecipeSection title="Nutrition Info (approx.)" icon={Calculator}>
-            <ul className="space-y-3">
-              {recipeData.calculations.map((calc, index) => (
-                <li key={index} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 text-muted-foreground">
-                    {calc.icon && <calc.icon className="h-4 w-4" />}
-                    {calc.label}
-                  </span>
-                  <span className="font-medium text-foreground">{calc.value}</span>
-                </li>
-              ))}
-            </ul>
-          </RecipeSection>
-           <Alert className="bg-primary/5 border-primary/20 text-primary">
-            <Info className="h-5 w-5 text-primary" />
-            <AlertTitle className="font-semibold">Ready to Cook?</AlertTitle>
-            <AlertDescription>
-              Gather your ingredients and let's get started!
-            </AlertDescription>
-           </Alert>
-        </aside>
       </div>
-
-      <Separator className="my-12" />
-
-      {/* Procedure Section */}
-      <RecipeSection title="Procedure" icon={ListOrdered}>
-        <ol className="list-decimal space-y-6 pl-6 marker:font-bold marker:text-primary">
-          {recipeData.procedure.map((step, index) => (
-            <li key={index} className="text-base leading-relaxed text-foreground pl-2">
-              {step}
-            </li>
-          ))}
-        </ol>
-      </RecipeSection>
-
-      {/* Extra Information Section */}
-      {recipeData.extraInfo && (
-        <>
-          <Separator className="my-12" />
-          <RecipeSection title={recipeData.extraInfo.title} icon={Info}>
-            <p className="text-base leading-relaxed">{recipeData.extraInfo.content}</p>
-            <Button variant="link" className="mt-4 p-0 h-auto text-primary hover:text-primary/80">
-              Learn more cooking tips <ExternalLink className="ml-1.5 h-4 w-4" />
-            </Button>
-          </RecipeSection>
-        </>
-      )}
     </div>
   );
 }
