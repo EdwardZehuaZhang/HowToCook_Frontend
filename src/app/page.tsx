@@ -2,28 +2,19 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { DotsThree, X, Asterisk } from '@phosphor-icons/react';
-import type { Metadata } from 'next';
+// import { DotsThree, X, Asterisk } from '@phosphor-icons/react'; // Removed phosphor-icons
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
-// It's good practice to define metadata in server components or layout.tsx.
-// For client components, if you need dynamic metadata, you might need a different approach
-// or keep static metadata in layout.tsx. For now, this static metadata object is fine,
-// but Next.js might prefer it in a parent server component or layout for page components.
-// However, `export const metadata` is usually for Server Components.
-// Since this is now a client component, this export might not work as expected for page-level metadata.
-// Let's comment it out for now, assuming metadata will be handled by layout.tsx or a parent server component.
-/*
-export const metadata: Metadata = {
-  title: 'HowToCook - Recipe',
-  description: 'Detailed recipe instructions for 酸梅汤（半成品加工）',
-};
-*/
+// Import local SVG files
+import DotsThreeIcon from '@/assets/icons/dots-three.svg';
+import XIcon from '@/assets/icons/x.svg';
+import AsteriskIcon from '@/assets/icons/asterisk.svg';
+
 
 const recipeData = {
   pageTitle: "How to cook:",
-  recipeName: "酸梅汤（半成品加工）", // Chinese placeholder value
+  recipeName: "酸梅汤（半成品加工）",
   recipeLink: "https://github.com/Anduin2017/HowToCook/blob/master/dishes/drink/%E9%85%B8%E6%A2%85%E6%B1%A4%EF%BC%88%E5%8D%8A%E6%88%90%E5%93%81%E5%8A%A0%E5%B7%A5%EF%BC%89.md",
   imageUrl: "https://picsum.photos/332/131",
   imageAiHint: "chinese plum soup",
@@ -81,9 +72,8 @@ interface SectionProps {
   contentContainerClassName?: string;
 }
 
-// Using CSS variables for font sizes as per the provided HTML structure
-const recipeHeadingFontSize = '16px'; // For titles like "必备原料和工具"
-const recipeDescriptionFontSize = '12px'; // For smaller text like ingredients list
+const recipeHeadingFontSize = '16px'; 
+const recipeDescriptionFontSize = '12px'; 
 
 const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassName, contentContainerClassName }) => {
   return (
@@ -107,16 +97,17 @@ const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassN
 
 export default function HomePage() {
   return (
-    <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans"> {/* Removed fixed height, using auto for content flow. Removed py-4 as inner container has padding. */}
-      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[27px]"> {/* Added pb to match top padding for symmetry */}
+    <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
+      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[27px]">
         <div className="self-end">
-          <DotsThree size={12} weight="fill" className="text-foreground" />
+          {/* Use local SVG with next/image */}
+          <Image src={DotsThreeIcon} alt="Menu" width={12} height={12} className="text-foreground" />
         </div>
 
         <div className="flex flex-col items-start gap-5 self-stretch w-full">
           <h2 
             className="font-normal text-foreground"
-            style={{ fontSize: '21px' }} // "How to cook:"
+            style={{ fontSize: '21px' }}
           >
             {recipeData.pageTitle}
           </h2>
@@ -128,12 +119,12 @@ export default function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-normal text-foreground hover:underline"
-                style={{ fontSize: '27px' }} // "酸梅汤（半成品加工）"
+                style={{ fontSize: '27px' }} 
               >
                 {recipeData.recipeName}
               </Link>
-              {/* Assuming X is a close button, it might need functionality later */}
-              <X size={25} className="text-foreground cursor-pointer" />
+              {/* Use local SVG with next/image */}
+              <Image src={XIcon} alt="Close" width={25} height={25} className="text-foreground cursor-pointer" />
             </div>
             <div className="self-stretch w-full h-px bg-foreground" />
           </div>
@@ -147,7 +138,7 @@ export default function HomePage() {
                 style={{ objectFit: 'cover' }}
                 className="rounded"
                 data-ai-hint={recipeData.imageAiHint}
-                priority // Good for LCP images
+                priority
               />
             </div>
 
@@ -166,7 +157,8 @@ export default function HomePage() {
                 >
                   {recipeData.difficultyLabel}
                 </div>
-                <Asterisk size={21} weight="fill" className="text-foreground ml-1" />
+                {/* Use local SVG with next/image */}
+                <Image src={AsteriskIcon} alt="Difficulty" width={21} height={21} className="text-foreground ml-1" />
               </div>
 
               <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto">
@@ -194,7 +186,6 @@ export default function HomePage() {
               <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
                 <div>
                   {recipeData.procedure.map((line, index) => (
-                    // Using whitespace-pre-wrap to handle spaces and newlines correctly from __html
                     <div key={index} dangerouslySetInnerHTML={{ __html: line.replace(/&nbsp;/g, '\u00A0') }} className="whitespace-pre-wrap"/>
                   ))}
                 </div>
