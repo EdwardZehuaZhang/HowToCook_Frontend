@@ -1,10 +1,12 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Add useState and useEffect
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { searchRecipes, getRecipeById } from '@/services/api'; // Import the API functions
+
 
 // Import local SVG files
 import DotsThreeIcon from '@/assets/icons/dots-three.svg';
