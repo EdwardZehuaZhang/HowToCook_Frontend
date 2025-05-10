@@ -5,7 +5,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 
-// Load IBM Plex Mono locally using relative paths
+// Load IBM Plex Mono locally
 const ibmPlexMono = localFont({
   src: [
     {
@@ -25,7 +25,7 @@ const ibmPlexMono = localFont({
     },
   ],
   variable: '--font-ibm-plex-mono',
-  display: 'swap', // Improves font loading performance
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -42,10 +42,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          ibmPlexMono.variable, 
+          ibmPlexMono.variable,
           'min-h-screen bg-background text-foreground font-sans antialiased flex flex-col'
         )}
       >
+        {/* Removed Header and Footer for mobile app focus */}
         <main className="flex-grow w-full">
           {children}
         </main>
@@ -54,4 +55,3 @@ export default function RootLayout({
     </html>
   );
 }
-
