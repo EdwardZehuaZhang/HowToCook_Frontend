@@ -1,8 +1,8 @@
+
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
-// import { DotsThree, X, Asterisk } from '@phosphor-icons/react'; // Removed phosphor-icons
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -72,20 +72,20 @@ interface SectionProps {
   contentContainerClassName?: string;
 }
 
-const recipeHeadingFontSize = '16px'; 
-const recipeDescriptionFontSize = '12px'; 
+const recipeHeadingFontSize = '16px';
+const recipeDescriptionFontSize = '12px';
 
 const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassName, contentContainerClassName }) => {
   return (
     <div className="flex flex-col items-start gap-2 self-stretch w-full">
-      <div 
+      <div
         className={cn("font-medium text-foreground", titleContainerClassName)}
-        style={{ fontSize: recipeHeadingFontSize }} 
+        style={{ fontSize: recipeHeadingFontSize }}
       >
         {title}
       </div>
       <div className="self-stretch w-full h-px bg-foreground" />
-      <div 
+      <div
         className={cn("font-normal text-foreground leading-relaxed self-stretch", contentContainerClassName)}
         style={{ fontSize: recipeDescriptionFontSize }}
       >
@@ -100,13 +100,12 @@ export default function HomePage() {
     <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
       <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[27px]">
         <div className="self-end">
-          {/* Use local SVG with next/image */}
           <Image src={DotsThreeIcon} alt="Menu" width={12} height={12} className="text-foreground" />
         </div>
 
         <div className="flex flex-col items-start gap-5 self-stretch w-full">
-          <h2 
-            className="font-normal text-foreground"
+          <h2
+            className="font-sans font-normal text-foreground"
             style={{ fontSize: '21px' }}
           >
             {recipeData.pageTitle}
@@ -119,16 +118,15 @@ export default function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-normal text-foreground hover:underline"
-                style={{ fontSize: '27px' }} 
+                style={{ fontSize: '27px' }}
               >
                 {recipeData.recipeName}
               </Link>
-              {/* Use local SVG with next/image */}
               <Image src={XIcon} alt="Close" width={25} height={25} className="text-foreground cursor-pointer" />
             </div>
             <div className="self-stretch w-full h-px bg-foreground" />
           </div>
-          
+
           <div className="flex flex-col items-start gap-3.5 self-stretch w-full">
             <div className="relative self-stretch w-full h-[131px]">
               <Image
@@ -143,7 +141,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-col items-start gap-9 self-stretch w-full">
-              <p 
+              <p
                 className="font-normal text-foreground leading-relaxed self-stretch"
                 style={{ fontSize: recipeDescriptionFontSize }}
               >
@@ -151,13 +149,12 @@ export default function HomePage() {
               </p>
 
               <div className="inline-flex items-center">
-                <div 
+                <div
                   className="font-medium text-foreground"
                   style={{ fontSize: recipeHeadingFontSize }}
                 >
                   {recipeData.difficultyLabel}
                 </div>
-                {/* Use local SVG with next/image */}
                 <Image src={AsteriskIcon} alt="Difficulty" width={21} height={21} className="text-foreground ml-1" />
               </div>
 
@@ -182,7 +179,7 @@ export default function HomePage() {
                   ))}
                 </div>
               </Section>
-              
+
               <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
                 <div>
                   {recipeData.procedure.map((line, index) => (

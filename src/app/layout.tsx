@@ -9,17 +9,17 @@ import { Toaster } from "@/components/ui/toaster";
 const ibmPlexMono = localFont({
   src: [
     {
-      path: '../assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.woff2',
+      path: '../assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.ttf',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../assets/fonts/IBM_Plex_Mono/IBMPlexMono-Medium.woff2',
+      path: '../assets/fonts/IBM_Plex_Mono/IBMPlexMono-Medium.ttf',
       weight: '500',
       style: 'normal',
     },
     {
-      path: '../assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.woff2',
+      path: '../assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.ttf',
       weight: '700',
       style: 'normal',
     },
