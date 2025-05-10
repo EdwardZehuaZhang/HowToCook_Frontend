@@ -1,10 +1,11 @@
+
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 
-// Load IBM Plex Mono locally
+// Load IBM Plex Mono locally using relative paths
 const ibmPlexMono = localFont({
   src: [
     {
@@ -53,3 +54,4 @@ export default function RootLayout({
     </html>
   );
 }
+
