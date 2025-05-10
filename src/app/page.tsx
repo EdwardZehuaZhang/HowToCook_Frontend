@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { MoreVertical, X, Asterisk } from 'lucide-react';
+import { DotsThree, X, Asterisk } from '@phosphor-icons/react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,7 @@ const recipeData = {
   pageTitle: "How to cook:",
   recipeName: "酸梅汤（半成品加工）",
   recipeLink: "https://github.com/Anduin2017/HowToCook/blob/master/dishes/drink/%E9%85%B8%E6%A2%85%E6%B1%A4%EF%BC%88%E5%8D%8A%E6%88%90%E5%93%81%E5%8A%A0%E5%B7%A5%EF%BC%89.md",
-  imageUrl: "https://picsum.photos/332/131", // Standard placeholder
+  imageUrl: "https://picsum.photos/332/131",
   imageAiHint: "chinese plum soup",
   description: "砂糖椰子冰沙是一种制作极其快速方便的饮料，若原料选择得当则口感丰富。然而制作时动静较大，适合白天在家制作以作为下午茶。",
   difficultyLabel: "预估烹饪难度：",
@@ -73,11 +73,11 @@ interface SectionProps {
 const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassName, contentContainerClassName }) => {
   return (
     <div className="flex flex-col items-start gap-2 self-stretch w-full">
-      <div className={cn("text-base font-medium text-foreground", titleContainerClassName)}>
+      <div className={cn("text-base font-medium text-foreground", titleContainerClassName)}> {/* text-base is 16px */}
         {title}
       </div>
       <div className="self-stretch w-full h-px bg-foreground" />
-      <div className={cn("text-sm font-normal text-foreground leading-relaxed self-stretch", contentContainerClassName)}>
+      <div className={cn("text-xs font-normal text-foreground leading-relaxed self-stretch", contentContainerClassName)}> {/* text-xs is 12px */}
         {children}
       </div>
     </div>
@@ -86,14 +86,14 @@ const Section: React.FC<SectionProps> = ({ title, children, titleContainerClassN
 
 export default function HomePage() {
   return (
-    <div className="w-[375px] h-[1385px] border border-solid border-border bg-card text-foreground font-sans mx-auto shadow-lg rounded-md">
+    <div className="w-[375px] h-auto border border-solid border-border bg-card text-foreground font-sans mx-auto shadow-lg rounded-md py-4"> {/* Adjusted height to auto and added padding */}
       <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px]">
         <div className="self-end">
-          <MoreVertical className="w-[29px] h-[29px] text-foreground" />
+          <DotsThree size={12} weight="fill" className="text-foreground" />
         </div>
 
         <div className="flex flex-col items-start gap-5 self-stretch w-full">
-          <h2 className="text-xl font-normal text-foreground">
+          <h2 className="text-[21px] font-normal text-foreground">
             {recipeData.pageTitle}
           </h2>
 
@@ -103,11 +103,11 @@ export default function HomePage() {
                 href={recipeData.recipeLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-lg font-normal text-foreground hover:underline"
+                className="text-[27px] font-normal text-foreground hover:underline"
               >
                 {recipeData.recipeName}
               </Link>
-              <X className="w-[25px] h-[25px] text-foreground cursor-pointer" />
+              <X size={25} className="text-foreground cursor-pointer" />
             </div>
             <div className="self-stretch w-full h-px bg-foreground" />
           </div>
@@ -117,26 +117,26 @@ export default function HomePage() {
               <Image
                 src={recipeData.imageUrl}
                 alt={recipeData.recipeName}
-                layout="fill"
-                objectFit="cover"
+                fill // layout="fill" is deprecated, use fill
+                style={{ objectFit: 'cover' }} // objectFit="cover" needs to be in style prop with fill
                 className="rounded"
                 data-ai-hint={recipeData.imageAiHint}
               />
             </div>
 
             <div className="flex flex-col items-start gap-9 self-stretch w-full">
-              <p className="text-sm font-normal text-foreground leading-relaxed self-stretch">
+              <p className="text-xs font-normal text-foreground leading-relaxed self-stretch"> {/* text-xs is 12px */}
                 {recipeData.description}
               </p>
 
               <div className="inline-flex items-center">
-                <div className="text-base font-medium text-foreground">
+                <div className="text-base font-medium text-foreground"> {/* text-base is 16px */}
                   {recipeData.difficultyLabel}
                 </div>
-                <Asterisk className="w-[21px] h-[21px] text-foreground ml-1" />
+                <Asterisk size={21} weight="fill" className="text-foreground ml-1" />
               </div>
 
-              <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto"> {/* Adjusted w-28 to w-auto for flexibility */}
+              <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto">
                 <div>
                   {recipeData.materials.map((item, index) => (
                     <React.Fragment key={index}>
@@ -152,7 +152,6 @@ export default function HomePage() {
                   {recipeData.calculations.map((line, index) => (
                     <React.Fragment key={index}>
                       <span dangerouslySetInnerHTML={{ __html: line }} />
-                      {/* Consistent line break handling */}
                       {(index < recipeData.calculations.length - 1 || line === "") && <br />}
                     </React.Fragment>
                   ))}

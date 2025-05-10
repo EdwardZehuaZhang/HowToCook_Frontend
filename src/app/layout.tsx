@@ -3,8 +3,6 @@ import { IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
-import AppHeader from '@/components/layout/app-header';
-import AppFooter from '@/components/layout/app-footer';
 
 const ibmPlexMono = IBM_Plex_Mono({
   variable: '--font-ibm-plex-mono',
@@ -30,11 +28,9 @@ export default function RootLayout({
           'min-h-screen bg-background font-sans antialiased flex flex-col'
         )}
       >
-        <AppHeader />
         <main className="flex-grow container mx-auto px-4 py-8">
           {children}
         </main>
-        <AppFooter />
         <Toaster />
       </body>
     </html>
