@@ -172,6 +172,48 @@ export default function HomePage() {
   fetchRecipeData();
 }, []);
 
+
+function parseMarkdownLinks(text: string): React.ReactNode[] {
+  if (!text) return [null];
+  
+  // Regular expression to match markdown links: [text](url)
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  
+  let lastIndex = 0;
+  let match;
+  
+  while ((match = linkRegex.exec(text)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    
+    // Add the link as a JSX element with no extra spaces
+    parts.push(
+      <Link
+        key={match.index}
+        href={match[2]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline"
+      >
+        {match[1]}
+      </Link>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+  
+  // Add any remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+  
+  return parts;
+}
+
+
 async function findRecipeByName(name) {
   let page = 1;
   const limit = 20;
@@ -212,7 +254,7 @@ async function findRecipeByName(name) {
         >
           {title}
         </div>
-        <div className="self-stretch w-full h-px bg-foreground"></div>
+        <div className="self-stretch w-full h-[0.5px] bg-foreground"></div>
         <div
           className={cn("font-normal text-foreground leading-relaxed self-stretch", contentContainerClassName)}
           style={{ fontSize: recipeDescriptionFontSize }}
@@ -241,9 +283,9 @@ async function findRecipeByName(name) {
 
   return (
     <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
-      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[27px]">
+      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[100px]">
         <div className="self-end">
-          <Image src={DotsThreeIcon} alt="Menu" width={12} height={12} className="text-foreground" />
+          <Image src={DotsThreeIcon} alt="Menu" width={36} height={36} className="text-foreground" />
         </div>
 
         <div className="flex flex-col items-start gap-5 self-stretch w-full">
@@ -267,7 +309,7 @@ async function findRecipeByName(name) {
               </Link>
               <Image src={XIcon} alt="Close" width={25} height={25} className="text-foreground cursor-pointer" />
             </div>
-            <div className="self-stretch w-full h-px bg-foreground"></div>
+            <div className="self-stretch w-full h-[0.5px] bg-foreground"></div>
           </div>
 
           <div className="flex flex-col items-start gap-3.5 self-stretch w-full">
@@ -277,6 +319,7 @@ async function findRecipeByName(name) {
                   src={recipeData.imageUrl}
                   alt={recipeData.recipeName}
                   fill
+                  sizes="(max-width: 768px) 100vw, 332px" // Added this line
                   style={{ objectFit: 'cover' }}
                   priority
                 />
@@ -286,13 +329,16 @@ async function findRecipeByName(name) {
                 </div>
               )}
             </div>
+
             <div className="flex flex-col items-start gap-9 self-stretch w-full">
               <p
                 className="font-normal text-foreground leading-relaxed self-stretch"
                 style={{ fontSize: recipeDescriptionFontSize }}
               >
-                {recipeData.description || "No description available"}
-              </p>
+                {recipeData.description ? 
+                    parseMarkdownLinks(recipeData.description) : 
+                    "No description available"}
+                </p>
 
               <div className="inline-flex items-center">
                 <div
@@ -322,7 +368,7 @@ async function findRecipeByName(name) {
                 <div>
                   {recipeData.materials.map((item, index) => (
                     <React.Fragment key={index}>
-                      <span dangerouslySetInnerHTML={{ __html: item }} />
+                      {parseMarkdownLinks(item)}
                       {index < recipeData.materials.length - 1 && <br />}
                     </React.Fragment>
                   ))}
@@ -333,7 +379,7 @@ async function findRecipeByName(name) {
                 <div>
                   {recipeData.calculations.map((line, index) => (
                     <React.Fragment key={index}>
-                      <span dangerouslySetInnerHTML={{ __html: line }} />
+                      {parseMarkdownLinks(line)}
                       {(index < recipeData.calculations.length - 1 || line === "") && <br />}
                     </React.Fragment>
                   ))}
@@ -343,7 +389,9 @@ async function findRecipeByName(name) {
               <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
                 <div>
                   {recipeData.procedure.map((line, index) => (
-                    <div key={index} dangerouslySetInnerHTML={{ __html: line.replace(/&nbsp;/g, '\u00A0') }} className="whitespace-pre-wrap"/>
+                    <div key={index} className="whitespace-pre-wrap">
+                      {parseMarkdownLinks(line.replace(/&nbsp;/g, '\u00A0'))}
+                    </div>
                   ))}
                 </div>
               </Section>
@@ -352,7 +400,7 @@ async function findRecipeByName(name) {
                 <div>
                   {recipeData.extraInfo.map((line, index) => (
                     <React.Fragment key={index}>
-                      <span dangerouslySetInnerHTML={{ __html: line }} />
+                      {parseMarkdownLinks(line)}
                       {index < recipeData.extraInfo.length - 1 && <br />}
                     </React.Fragment>
                   ))}

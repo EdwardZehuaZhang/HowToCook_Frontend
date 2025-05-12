@@ -1,5 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
-
+const API_URL = 'https://howtocook-backend-b5cb.onrender.com/api' ;
 /**
  * Fetch paginated recipes
  */
