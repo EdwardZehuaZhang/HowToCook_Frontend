@@ -1,10 +1,7 @@
-import type {NextConfig} from 'next';
-
+// Replace the entire file with this fixed configuration
 
 /** @type {import('next').NextConfig} */
-
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -14,6 +11,16 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
     domains: ['picsum.photos'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      }
+    ],
   },
   webpack(config) {
     config.module.rules.push({
@@ -24,5 +31,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
 module.exports = nextConfig;

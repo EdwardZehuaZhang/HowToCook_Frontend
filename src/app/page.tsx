@@ -14,10 +14,11 @@ interface RecipeData {
   pageTitle: string;
   recipeName: string;
   recipeLink: string;
-  imageUrl: string;
+  imageUrl: string | null;
   imageAiHint: string;
   description: string;
   difficultyLabel: string;
+  difficulty?: number;
   materialsTitle: string;
   materials: string[];
   calculationsTitle: string;
@@ -41,12 +42,13 @@ const recipeDescriptionFontSize = '12px';
 export default function HomePage() {
   const [recipeData, setRecipeData] = useState<RecipeData>({
     pageTitle: "How to cook:",
-    recipeName: "酸梅汤（半成品加工）",
-    recipeLink: "https://github.com/Anduin2017/HowToCook/blob/master/dishes/drink/%E9%85%B8%E6%A2%85%E6%B1%A4%EF%BC%88%E5%8D%8A%E6%88%90%E5%93%81%E5%8A%A0%E5%B7%A5%EF%BC%89.md",
-    imageUrl: "https://picsum.photos/332/131",
+    recipeName: "Loading...",
+    recipeLink: "#",
+    imageUrl: "null",
     imageAiHint: "chinese plum soup",
     description: "砂糖椰子冰沙是一种制作极其快速方便的饮料，若原料选择得当则口感丰富。然而制作时动静较大，适合白天在家制作以作为下午茶。",
     difficultyLabel: "预估烹饪难度：",
+    difficulty: 1,
     materialsTitle: "必备原料和工具",
     materials: [
       "酸梅晶固体饮料",
@@ -139,10 +141,11 @@ export default function HomePage() {
             recipeName: fullRecipe.name || "酸梅汤",
             recipeLink: fullRecipe.sourceUrl || "#",
             // Don't use external image service
-            imageUrl: "", 
+            imageUrl: fullRecipe.imageUrl || null,
             imageAiHint: "chinese plum soup",
             description: fullRecipe.description || "No description available",
             difficultyLabel: "预估烹饪难度：",
+            difficulty: fullRecipe.difficulty,
             materialsTitle: "必备原料和工具",
             materials: fullRecipe.materials || [],
             calculationsTitle: "计算",
@@ -269,23 +272,27 @@ async function findRecipeByName(name) {
 
           <div className="flex flex-col items-start gap-3.5 self-stretch w-full">
             <div className="relative self-stretch w-full h-[131px]">
-              <Image
-                src={recipeData.imageUrl}
-                alt={recipeData.recipeName}
-                fill
-                style={{ objectFit: 'cover' }}
-                className="rounded"
-                data-ai-hint={recipeData.imageAiHint}
-                priority
-              />
+              {recipeData.imageUrl ? (
+                <Image
+                  src={recipeData.imageUrl}
+                  alt={recipeData.recipeName}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  className="rounded"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-muted rounded">
+                  <p className="text-muted-foreground text-sm">暂无图片 (No image available)</p>
+                </div>
+              )}
             </div>
-
             <div className="flex flex-col items-start gap-9 self-stretch w-full">
               <p
                 className="font-normal text-foreground leading-relaxed self-stretch"
                 style={{ fontSize: recipeDescriptionFontSize }}
               >
-                {recipeData.description}
+                {recipeData.description || "No description available"}
               </p>
 
               <div className="inline-flex items-center">
@@ -295,9 +302,23 @@ async function findRecipeByName(name) {
                 >
                   {recipeData.difficultyLabel}
                 </div>
-                <Image src={AsteriskIcon} alt="Difficulty" width={21} height={21} className="text-foreground ml-1" />
+                {recipeData.difficulty ? (
+                  <div className="flex">
+                    {[...Array(recipeData.difficulty)].map((_, i) => (
+                      <Image 
+                        key={i} 
+                        src={AsteriskIcon} 
+                        alt={`Difficulty level ${i+1}`} 
+                        width={21} 
+                        height={21} 
+                        className="text-foreground ml-1" 
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-foreground ml-1 text-sm">未指定</span>
+                )}
               </div>
-
               <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto">
                 <div>
                   {recipeData.materials.map((item, index) => (
