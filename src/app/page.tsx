@@ -278,7 +278,6 @@ async function findRecipeByName(name) {
                   alt={recipeData.recipeName}
                   fill
                   style={{ objectFit: 'cover' }}
-                  className="rounded"
                   priority
                 />
               ) : (
