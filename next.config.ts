@@ -1,7 +1,8 @@
-// Replace the entire file with this fixed configuration
+import type { Configuration as WebpackConfig } from 'webpack';
+import { NextConfig } from 'next';
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -22,7 +23,7 @@ const nextConfig = {
       }
     ],
   },
-  webpack(config) {
+  webpack(config: WebpackConfig) {
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],
@@ -31,4 +32,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
