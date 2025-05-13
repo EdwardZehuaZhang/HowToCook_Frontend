@@ -6,9 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fetchRecipes, searchRecipes, getRecipeById } from '@/services/api';
 
-import DotsThreeIcon from '@/assets/icons/dots-three.svg';
-import XIcon from '@/assets/icons/x.svg';
-import AsteriskIcon from '@/assets/icons/asterisk.svg';
+import { DotsThreeIcon, XIcon, AsteriskIcon } from '@/components/Icons';
 
 interface RecipeData {
   pageTitle: string;
@@ -358,7 +356,7 @@ export default function HomePage() {
     <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
       <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[100px]">
         <div className="self-end">
-          <Image src={DotsThreeIcon} alt="Menu" width={36} height={36} className="text-foreground" />
+          <DotsThreeIcon width={36} height={36} className="text-foreground" />
         </div>
 
         <div className="flex flex-col items-start gap-5 self-stretch w-full">
@@ -382,14 +380,7 @@ export default function HomePage() {
                 />
               </form>
               <div className="flex-shrink-0">
-                <Image
-                  src={XIcon}
-                  alt="Clear search"
-                  width={25}
-                  height={25}
-                  className="text-foreground cursor-pointer ml-2"
-                  onClick={() => setSearchTerm('')}
-                />
+                <XIcon width={25} height={25} className="text-foreground cursor-pointer ml-2" onClick={() => setSearchTerm('')} />
               </div>
             </div>
             <div className="self-stretch w-full h-[0.5px] bg-foreground"></div>
@@ -443,13 +434,12 @@ export default function HomePage() {
                         {recipeData.difficulty ? (
                           <div className="flex">
                             {[...Array(recipeData.difficulty)].map((_, i) => (
-                              <Image
+                              <AsteriskIcon
                                 key={i}
-                                src={AsteriskIcon}
-                                alt={`Difficulty level ${i + 1}`}
                                 width={21}
                                 height={21}
                                 className="text-foreground ml-1"
+                                aria-label={`Difficulty level ${i + 1}`}
                               />
                             ))}
                           </div>
