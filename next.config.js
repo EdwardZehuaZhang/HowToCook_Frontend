@@ -15,7 +15,6 @@ const nextConfig = {
   
   // Image settings - combined from both configs
   images: {
-    domains: ['github.com', 'picsum.photos'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -32,6 +31,10 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
+      },
+      {
+      protocol: 'https',
+      hostname: 'howtocook-frontend-iuuqsnke3-edwardzehuazhangs-projects.vercel.app',
       }
     ]
   },
