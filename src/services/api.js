@@ -1,10 +1,34 @@
-const API_URL = 'https://howtocook-backend-b5cb.onrender.com/api' ;
+// Configuration for API endpoints
+const API_CONFIG = {
+  // Remove the /api suffix from base URLs and add it in individual requests
+  remote: 'https://howtocook-backend-b5cb.onrender.com',
+  local: 'http://localhost:5000', 
+};
+
+// Force using local backend during development
+let useLocalBackend = true; 
+
+/**
+ * Get the current API URL based on configuration
+ */
+export function getApiUrl() {
+  return useLocalBackend ? API_CONFIG.local : API_CONFIG.remote;
+}
+
+/**
+ * Switch between local and remote backend
+ */
+export function setUseLocalBackend(useLocal) {
+  useLocalBackend = useLocal;
+  console.log(`Using ${useLocalBackend ? 'local' : 'remote'} backend at: ${getApiUrl()}`);
+}
+
 /**
  * Fetch paginated recipes
  */
 export async function fetchRecipes(page = 1, limit = 10) {
   try {
-    const response = await fetch(`${API_URL}/recipes?page=${page}&limit=${limit}`);
+    const response = await fetch(`${getApiUrl()}/api/recipes?page=${page}&limit=${limit}`);
     if (!response.ok) throw new Error('Network response was not ok');
     return await response.json();
   } catch (error) {
@@ -18,7 +42,7 @@ export async function fetchRecipes(page = 1, limit = 10) {
  */
 export async function searchRecipes(query = '', category = '', page = 1, limit = 10) {
   try {
-    let url = `${API_URL}/search?page=${page}&limit=${limit}`;
+    let url = `${getApiUrl()}/api/search?page=${page}&limit=${limit}`;
     
     if (query) url += `&query=${encodeURIComponent(query)}`;
     if (category) url += `&category=${encodeURIComponent(category)}`;
@@ -42,11 +66,22 @@ export async function searchRecipes(query = '', category = '', page = 1, limit =
  */
 export async function getRecipeById(id) {
   try {
-    const response = await fetch(`${API_URL}/recipes/${id}`);
-    if (!response.ok) throw new Error('Network response was not ok');
-    return await response.json();
+    const url = `${getApiUrl()}/api/recipes/${id}`;
+    console.log(`Fetching recipe with ID ${id} from: ${url}`);
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Failed to fetch recipe ${id}. Status: ${response.status}, Details:`, errorText);
+      throw new Error(`Network response was not ok. Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(`Successfully fetched recipe:`, data);
+    return data;
   } catch (error) {
-    console.error('Error fetching recipe:', error);
+    console.error(`Error fetching recipe with ID ${id}:`, error);
     return null;
   }
 }
@@ -56,7 +91,7 @@ export async function getRecipeById(id) {
  */
 export async function getCategories() {
   try {
-    const response = await fetch(`${API_URL}/categories`);
+    const response = await fetch(`${getApiUrl()}/api/categories`);
     if (!response.ok) throw new Error('Network response was not ok');
     return await response.json();
   } catch (error) {
