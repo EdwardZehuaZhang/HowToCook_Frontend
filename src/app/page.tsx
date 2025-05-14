@@ -74,6 +74,18 @@ export default function HomePage() {
     e.preventDefault();
   }
 
+  const handleClearSearch = () => {
+    // First, ensure panel stays visible but begins fading out
+    setSearchResultsVisible(false);
+    
+    // After fade animation completes, hide the panel and clear results
+    setTimeout(() => {
+      setSearchTerm('');
+      setShowSearchResults(false);
+      setSearchResults([]);
+    }, 300); // This matches the duration in your CSS transition
+  };
+
   const handleRecipeSelect = async (recipeId: string) => {
     preventSearchRef.current = true;
 
@@ -150,12 +162,6 @@ export default function HomePage() {
         } finally {
           setSearchLoading(false);
         }
-      } else {
-        setSearchResultsVisible(false);
-        setTimeout(() => {
-          setShowSearchResults(false);
-          setSearchResults([]);
-        }, 300);
       }
     }, 300);
 
@@ -361,7 +367,7 @@ export default function HomePage() {
                   width={25} 
                   height={25} 
                   className="text-foreground cursor-pointer ml-2" 
-                  onClick={() => setSearchTerm('')} 
+                  onClick={handleClearSearch} 
                 />
               </div>
             </div>
