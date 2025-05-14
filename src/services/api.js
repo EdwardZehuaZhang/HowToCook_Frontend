@@ -6,7 +6,7 @@ const API_CONFIG = {
 };
 
 // Force using local backend during development
-let useLocalBackend = true; 
+let useLocalBackend = false; 
 
 /**
  * Get the current API URL based on configuration
