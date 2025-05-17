@@ -49,14 +49,17 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
     <div className={cn('markdown-content', className)}>
       <ReactMarkdown
         components={{
-          p: ({ children, ...props }) => (
-            <p
-              className="my-2 leading-relaxed"
-              {...props}
-            >
-              {children}
-            </p>
-          ),
+          // Modified paragraph component to handle images better
+          p: ({ children, ...props }) => {
+            return (
+              <p
+                className="my-2 leading-relaxed"
+                {...props}
+              >
+                {children}
+              </p>
+            )
+          },
           a: ({ href, children, ...props }) => (
             <Link
               href={href || '#'}
@@ -68,9 +71,10 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
               {children}
             </Link>
           ),
+          // Modified image component to use span (inline element) instead of div
           img: ({ src, alt, ...props }) =>
             src ? (
-              <div className="w-full my-1 relative">
+              <span className="block w-full my-1">
                 <Image
                   src={src}
                   alt={alt || 'Recipe image'}
@@ -80,7 +84,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
                   style={{ maxHeight: `${imageHeight}px` }}
                   {...props}
                 />
-              </div>
+              </span>
             ) : null,
           li: ({ children, ...props }) => (
             <li

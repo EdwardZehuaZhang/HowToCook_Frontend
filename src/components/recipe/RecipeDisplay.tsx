@@ -68,7 +68,7 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
   return (
     <div className="flex flex-col items-start gap-0 self-stretch w-full">
       {recipeData.imageUrl && (
-        <div className="relative self-stretch w-full overflow-hidden mt-1">
+        <div className="relative self-stretch w-full overflow-hidden mt-1 flex justify-center items-center">
           <SafeImage
             src={recipeData.imageUrl}
             alt={recipeData.recipeName}
