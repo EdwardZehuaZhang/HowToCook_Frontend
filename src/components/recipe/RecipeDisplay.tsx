@@ -105,13 +105,12 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
             {recipeData.difficultyLabel}
           </div>
           {recipeData.difficulty ? (
-            <div className="flex">
+            <div className="flex items-center justify-center">
               {[...Array(recipeData.difficulty)].map((_, i) => (
                 <AsteriskIcon
                   key={i}
-                  width={21}
-                  height={21}
-                  className="text-foreground ml-1"
+                  width="21"
+                  height="21"
                   aria-label={`Difficulty level ${i + 1}`}
                 />
               ))}
