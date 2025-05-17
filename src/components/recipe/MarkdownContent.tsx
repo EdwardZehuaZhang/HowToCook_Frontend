@@ -2,7 +2,6 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import Image from 'next/image';
 import Link from 'next/link';
-import remarkGfm from 'remark-gfm';
 
 // Import styles 
 import { cn } from '@/lib/utils';
@@ -25,7 +24,6 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
   return (
     <div className={cn("markdown-content", className)}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
         components={{
           p: ({ node, children, ...props }) => (
             <p className="my-2 leading-relaxed" style={{ fontSize: recipeDescriptionFontSize }} {...props}>
@@ -41,14 +39,14 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
             if (!src) return null;
             
             return (
-              <div className="w-full my-3 relative">
+              <div className="w-full my-1 relative">
                 <Image
                   src={src}
                   alt={alt || "Recipe image"}
                   width={500}
                   height={imageHeight}
-                  className="w-full object-cover rounded-sm"
-                  style={{ maxHeight: imageHeight * 2 }}
+                  className="w-full object-contain"
+                  style={{ maxHeight: '150px' }}
                 />
               </div>
             );

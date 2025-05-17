@@ -81,6 +81,16 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.pexels.com',
+      },
+      // Add specific patterns for raw.githubusercontent.com
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+      },
+      // Allow more GitHub-related domains
+      {
+        protocol: 'https',
+        hostname: '**.githubusercontent.com',
       }
     ],
     // Keep existing domains
@@ -91,6 +101,7 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
+    unoptimized: false, // Enable optimization by default
   },
   
   // Webpack configuration for SVG support

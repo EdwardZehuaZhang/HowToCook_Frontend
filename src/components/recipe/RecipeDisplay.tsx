@@ -34,24 +34,29 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
     hasExtraInfo 
   });
 
-  // We'll still display the first image at the top for visual appeal
   return (
-    <div className="flex flex-col items-start gap-3.5 self-stretch w-full">
+    <div className="flex flex-col items-start gap-0 self-stretch w-full">
       {recipeData.imageUrl && (
-        <div className="relative self-stretch w-full h-[131px]">
+        <div className="relative self-stretch w-full overflow-hidden mt-1">
           <SafeImage
             src={recipeData.imageUrl}
             alt={recipeData.recipeName}
-            fill
-            sizes="(max-width: 768px) 100vw, 332px"
-            style={{ objectFit: 'cover' }}
+            width={332}
+            height={150}
+            className="object-contain"
+            style={{ 
+              maxHeight: '150px',
+              maxWidth: '332px',
+              width: 'auto',
+              height: 'auto' 
+            }}
             priority
             fallbackSrc="/recipe-placeholder.jpg"
           />
         </div>
       )}
 
-      <div className="flex flex-col items-start gap-9 self-stretch w-full">
+      <div className="flex flex-col items-start gap-5 self-stretch w-full mt-2">
         {recipeData.description && recipeData.description !== "No description available" && (
           <p
             className="font-normal text-foreground leading-relaxed self-stretch"

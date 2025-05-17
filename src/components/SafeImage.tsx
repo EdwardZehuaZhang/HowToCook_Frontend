@@ -29,18 +29,27 @@ const SafeImage: React.FC<SafeImageProps> = ({ src, alt, fallbackSrc, ...props }
         {...imgProps}
         style={{
           ...(fill ? { position: 'absolute', width: '100%', height: '100%' } : {}),
-          ...(props.style || {}),
-          ...(props.objectFit ? { objectFit: props.objectFit } : {})
+          ...(props.style || {})
         }}
       />
     );
   }
+
+  // Create a style object that guarantees proper aspect ratio handling
+  const combinedStyle = {
+    ...(props.style || {}),
+    // When using maxHeight, always ensure width is 'auto' as well
+    ...(props.style?.maxHeight ? { width: 'auto' } : {}),
+    // When using maxWidth, always ensure height is 'auto' as well
+    ...(props.style?.maxWidth ? { height: 'auto' } : {})
+  };
 
   return (
     <Image
       src={imgSrc}
       alt={alt}
       {...props}
+      style={combinedStyle}
       onError={handleError}
     />
   );

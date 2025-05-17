@@ -58,88 +58,73 @@ export function parseMarkdownLinks(text: string): React.ReactNode[] {
 
 /**
  * Convert relative image paths to absolute URLs in markdown content
- * 
- * @param markdownText Original markdown text with relative image paths
- * @param baseUrl Base URL for images (from recipe.sourceUrl)
- * @param allImageUrls List of all available image URLs
- * @returns Markdown with image URLs replaced with absolute paths
  */
 export function replaceImagePaths(markdownText: string, baseUrl: string, allImageUrls: string[]): string {
   if (!markdownText) return '';
   
-  // Regular expression to match markdown image syntax: ![alt](./path.jpg) or ![alt](../path.jpg) or ![alt](path.jpg)
+  // Regular expression to match markdown image syntax
   const imageRegex = /!\[(.*?)\]\(([^)]+)\)/g;
   
-  // We'll keep the original content if no replacements are needed
-  let hasReplacements = false;
+  // GitHub URLs transformation helper - ensure we use the media.githubusercontent.com format
+  const transformGithubUrl = (url: string): string => {
+    // Convert raw.githubusercontent.com URLs to media.githubusercontent.com/media/ format
+    if (url.includes('raw.githubusercontent.com')) {
+      return url.replace('raw.githubusercontent.com', 'media.githubusercontent.com/media');
+    }
+    
+    // Convert github.com blob URLs to media.githubusercontent.com/media format
+    if (url.includes('github.com/') && url.includes('/blob/')) {
+      return url.replace('github.com/', 'media.githubusercontent.com/media/').replace('/blob/', '/');
+    }
+    
+    return url;
+  };
+  
+  // Get the recipe directory from baseUrl if it's a GitHub URL
+  let recipeDir = '';
+  if (baseUrl.includes('github.com') && baseUrl.includes('/blob/master/dishes/')) {
+    recipeDir = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
+    recipeDir = transformGithubUrl(recipeDir);
+  }
+  
   const replacedText = markdownText.replace(imageRegex, (match, alt, path) => {
-    // Skip if it's already an absolute URL
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return match;
+    // If it's already an absolute URL, transform it to ensure correct format
+    if (path.startsWith('http')) {
+      const transformedUrl = transformGithubUrl(path);
+      return `![${alt}](${transformedUrl})`;
     }
     
-    hasReplacements = true;
+    // For relative paths, try different strategies
     
-    // Extract just the filename from the path, handling various relative formats
-    const filename = path.replace(/^\.\.?\//g, '').split('/').pop();
-    if (!filename) return match;
-
-    // Try to find a matching URL in allImageUrls
-    const fullUrl = allImageUrls.find(url => {
-      if (!url) return false;
-      
-      try {
-        // Extract filename from URL using URL API
-        const urlObj = new URL(url);
-        const urlFilename = urlObj.pathname.split('/').pop();
-        
-        // Check both encoded and decoded versions
+    // 1. Try to find a matching URL in allImageUrls
+    const filename = path.split('/').pop();
+    if (filename) {
+      const fullUrl = allImageUrls.find(url => {
+        if (!url) return false;
         return url.includes(encodeURIComponent(filename)) || 
-               url.includes(filename) || 
-               urlFilename === filename ||
-               decodeURIComponent(urlFilename || '') === filename;
-      } catch (e) {
-        // If URL parsing fails, do a simple string check
-        return url.includes(filename);
+              url.includes(filename) || 
+              decodeURIComponent(url).includes(filename);
+      });
+      
+      if (fullUrl) {
+        return `![${alt}](${fullUrl})`;
       }
-    });
-    
-    if (fullUrl) {
-      console.log(`Replaced ${path} with ${fullUrl}`);
-      return `![${alt}](${fullUrl})`;
     }
     
-    // If we can't find a direct match, try to construct a proper URL from baseUrl
-    if (baseUrl) {
-      const cleanPath = path.replace(/^\.\.?\//g, '');
-      let constructedUrl = '';
-      
-      if (baseUrl.includes('github.com') && baseUrl.includes('/blob/')) {
-        // Handle GitHub URLs - transform blob URLs to raw content URLs
-        const rawBaseUrl = baseUrl
-          .replace('github.com', 'raw.githubusercontent.com')
-          .replace('/blob/', '/');
-          
-        // Get the directory part of the base URL
-        const dirPath = rawBaseUrl.substring(0, rawBaseUrl.lastIndexOf('/') + 1);
-        constructedUrl = `${dirPath}${cleanPath}`;
-      } else {
-        // For other URLs, just append the path
-        const baseWithSlash = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-        constructedUrl = `${baseWithSlash}${cleanPath}`;
+    // 2. If we have a recipe directory, construct a full URL
+    if (recipeDir && path) {
+      let cleanPath = path;
+      // Remove ./ prefix if present
+      if (cleanPath.startsWith('./')) {
+        cleanPath = cleanPath.substring(2);
       }
-      
-      return `![${alt}](${constructedUrl})`;
+      const fullPath = `${recipeDir}/${cleanPath}`;
+      return `![${alt}](${fullPath})`;
     }
     
-    // If all else fails, return original
+    // 3. If we can't construct a path, return the original match
     return match;
   });
-  
-  // Only log when we actually made changes
-  if (hasReplacements) {
-    console.log('Processed markdown content with image replacements');
-  }
   
   return replacedText;
 }

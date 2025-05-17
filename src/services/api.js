@@ -78,6 +78,15 @@ export function extractRecipeImages(recipe) {
     images.push(recipe.imageUrl);
   }
   
+  // If recipe already has allImageUrls property, include those
+  if (recipe.allImageUrls && Array.isArray(recipe.allImageUrls)) {
+    recipe.allImageUrls.forEach(url => {
+      if (!images.includes(url)) {
+        images.push(url);
+      }
+    });
+  }
+  
   // Look for image URLs in various content sections
   const sections = [
     recipe.description,
@@ -94,8 +103,13 @@ export function extractRecipeImages(recipe) {
       let match;
       while ((match = imageRegex.exec(section)) !== null) {
         const url = match[1];
-        if (url && !images.includes(url) && url.startsWith('http')) {
-          images.push(url);
+        if (url && !images.includes(url)) {
+          // Convert GitHub URLs to the media.githubusercontent.com format
+          const processedUrl = url.includes('raw.githubusercontent.com') 
+            ? url.replace('raw.githubusercontent.com', 'media.githubusercontent.com/media')
+            : url;
+          
+          images.push(processedUrl);
         }
       }
     }

@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import Image from 'next/image';
 import Link from 'next/link';
 import { replaceImagePaths } from '@/utils/recipeUtils';
+import SafeImage from '@/components/SafeImage';
 
 interface MarkdownContentProps {
   content: string | string[];
@@ -36,28 +36,40 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
             // Skip rendering if no src
             if (!src) return null;
             
-            // Use a regular img tag for problematic URLs
-            if (src.startsWith('./') || src.startsWith('../')) {
-              console.warn('Using fallback for image path:', src);
-              return <img src="/recipe-placeholder.jpg" alt={alt || 'Image'} className="max-w-full h-auto my-2" />;
-            }
-            
             try {
-              // Use Next.js Image for valid URLs
+              // For valid URLs, use SafeImage component which handles errors gracefully
               return (
-                <div className="my-4 relative">
-                  <img 
+                <div className="mt-2 mb-4 relative w-full">
+                  <SafeImage 
                     src={src}
                     alt={alt || 'Recipe image'}
-                    className="w-full object-cover rounded-sm"
-                    style={{ maxHeight: '300px' }}
-                    {...props}
+                    width={332}
+                    height={150}
+                    className="object-contain"
+                    style={{ 
+                      maxHeight: '150px',
+                      maxWidth: '332px',
+                      width: 'auto',
+                      height: 'auto' 
+                    }}
+                    fallbackSrc="/recipe-placeholder.jpg"
                   />
                 </div>
               );
             } catch (error) {
               console.error('Error rendering image:', error);
-              return <img src="/recipe-placeholder.jpg" alt={alt || 'Image'} className="max-w-full h-auto my-2" />;
+              return (
+                <img 
+                  src="/recipe-placeholder.jpg"
+                  alt={alt || 'Image placeholder'}
+                  style={{ 
+                    maxHeight: '150px',
+                    maxWidth: '332px',
+                    width: 'auto',
+                    height: 'auto' 
+                  }}
+                />
+              );
             }
           },
           a: ({ node, href, children }) => (
@@ -70,7 +82,23 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
               {children}
             </Link>
           ),
-          p: ({ children }) => <p className="mb-3">{children}</p>
+          p: ({ children }) => <p className="mb-2">{children}</p>,
+          // Add components for list rendering
+          ul: ({ node, children, ...props }) => (
+            <ul className="list-disc pl-5 mb-2" {...props}>
+              {children}
+            </ul>
+          ),
+          ol: ({ node, children, ...props }) => (
+            <ol className="list-decimal pl-5 mb-2" {...props}>
+              {children}
+            </ol>
+          ),
+          li: ({ node, children, ...props }) => (
+            <li className="mb-1" {...props}>
+              {children}
+            </li>
+          )
         }}
       >
         {processedContent}

@@ -6,8 +6,7 @@ import { DotsThreeIcon } from '@/components/Icons';
 import { RecipeData, DEFAULT_RECIPE_DATA } from '@/types/recipeTypes';
 import { SearchBar } from '@/components/recipe/SearchBar';
 import { RecipeDisplay } from '@/components/recipe/RecipeDisplay';
-import { Section } from '@/components/recipe/Section';
-import MarkdownContent from '@/components/MarkdownContent';
+// Keep only necessary imports
 import { parseMarkdownLinks } from '@/utils/recipeUtils';
 
 export default function HomePage() {
@@ -169,7 +168,7 @@ export default function HomePage() {
           <DotsThreeIcon width={36} height={36} className="text-foreground" />
         </div>
 
-        <div className="flex flex-col items-start gap-5 self-stretch w-full">
+        <div className="flex flex-col items-start gap-3 self-stretch w-full">
           <h2
             className="font-sans font-normal text-foreground"
             style={{ fontSize: '21px' }}
@@ -185,22 +184,23 @@ export default function HomePage() {
           />
 
           {error && (
-            <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 text-sm rounded">
+            <div className="mt-1 p-2 bg-red-100 border border-red-400 text-red-700 text-sm rounded">
               {error}
             </div>
           )}
 
-          {/* Show recipe content either when a recipe was previously selected
-              OR when we've selected a recipe from search */}
-          {searchTerm.trim() && (hasSelectedRecipe || contentLoading) && (
-            <RecipeDisplay 
-              recipeData={{
-                ...recipeData,
-                allImageUrls: recipeImages
-              }} 
-              isLoading={contentLoading}
-            />
-          )}
+          {/* Show recipe content with reduced gap */}
+          <div className="mt-0"> {/* Reduced from mt-1 to mt-0 to decrease gap */}
+            {searchTerm.trim() && (hasSelectedRecipe || contentLoading) && (
+              <RecipeDisplay 
+                recipeData={{
+                  ...recipeData,
+                  allImageUrls: recipeImages
+                }} 
+                isLoading={contentLoading}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
