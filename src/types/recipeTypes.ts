@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 export interface RecipeData {
   pageTitle: string;
   recipeName: string;
@@ -15,11 +17,13 @@ export interface RecipeData {
   procedure: string[];
   extraInfoTitle: string;
   extraInfo: string[];
+  allImageUrls?: string[]; // Add this to store all available images for the recipe
+  sourceUrl?: string;
 }
 
 export interface SectionProps {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
   titleContainerClassName?: string;
   contentContainerClassName?: string;
 }
@@ -41,4 +45,5 @@ export const DEFAULT_RECIPE_DATA: RecipeData = {
   procedure: [],
   extraInfoTitle: "附加内容",
   extraInfo: [],
+  allImageUrls: []
 };

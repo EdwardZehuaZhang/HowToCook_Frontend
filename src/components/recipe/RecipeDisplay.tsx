@@ -3,7 +3,7 @@ import { RecipeData } from '@/types/recipeTypes';
 import { AsteriskIcon } from '@/components/Icons';
 import { Section, recipeHeadingFontSize, recipeDescriptionFontSize } from './Section';
 import SafeImage from '@/components/SafeImage';
-import { cn } from '@/lib/utils';
+import MarkdownContent from '@/components/MarkdownContent';
 import { parseMarkdownLinks } from '@/utils/recipeUtils';
 
 interface RecipeDisplayProps {
@@ -20,6 +20,21 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
     );
   }
 
+  // For debugging - check if sections have content
+  const hasMaterials = recipeData.materials && recipeData.materials.length > 0;
+  const hasCalculations = recipeData.calculations && recipeData.calculations.length > 0;
+  const hasProcedure = recipeData.procedure && recipeData.procedure.length > 0;
+  const hasExtraInfo = recipeData.extraInfo && recipeData.extraInfo.length > 0;
+  
+  console.log('Recipe sections:', { 
+    name: recipeData.recipeName,
+    hasMaterials, 
+    hasCalculations, 
+    hasProcedure, 
+    hasExtraInfo 
+  });
+
+  // We'll still display the first image at the top for visual appeal
   return (
     <div className="flex flex-col items-start gap-3.5 self-stretch w-full">
       {recipeData.imageUrl && (
@@ -70,67 +85,45 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
           )}
         </div>
 
-        <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto">
-          <div>
-            {recipeData.materials.map((item, index) => (
-              <React.Fragment key={index}>
-                {parseMarkdownLinks(item)}
-                {index < recipeData.materials.length - 1 && <br />}
-              </React.Fragment>
-            ))}
-          </div>
-        </Section>
+        {hasMaterials && (
+          <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto">
+            <MarkdownContent 
+              content={recipeData.materials.join('\n')}
+              imageUrls={recipeData.allImageUrls || []}
+              baseUrl={recipeData.recipeLink}
+            />
+          </Section>
+        )}
 
-        <Section title={recipeData.calculationsTitle} titleContainerClassName="w-auto">
-          <div>
-            {recipeData.calculations.map((line, index) => (
-              <React.Fragment key={index}>
-                {parseMarkdownLinks(line)}
-                {(index < recipeData.calculations.length - 1 || line === "") && <br />}
-              </React.Fragment>
-            ))}
-          </div>
-        </Section>
+        {hasCalculations && (
+          <Section title={recipeData.calculationsTitle} titleContainerClassName="w-auto">
+            <MarkdownContent 
+              content={recipeData.calculations.join('\n')}
+              imageUrls={recipeData.allImageUrls || []}
+              baseUrl={recipeData.recipeLink}
+            />
+          </Section>
+        )}
 
-        <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
-          <div>
-            {recipeData.procedure.map((line, index) => {
-              const isBulletPoint = line.trim().startsWith('-') || line.trim().startsWith('•');
-              const bulletText = line.trim().charAt(0);
-              const contentText = isBulletPoint ? line.trim().substring(1).trim() : line;
-              
-              return (
-                <div 
-                  key={index} 
-                  className={cn(
-                    "whitespace-pre-wrap",
-                    isBulletPoint && "bullet-point"
-                  )}
-                >
-                  {isBulletPoint ? (
-                    <>
-                      <span>{bulletText}</span>
-                      <span>{parseMarkdownLinks(contentText.replace(/&nbsp;/g, '\u00A0'))}</span>
-                    </>
-                  ) : (
-                    parseMarkdownLinks(line.replace(/&nbsp;/g, '\u00A0'))
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </Section>
+        {hasProcedure && (
+          <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
+            <MarkdownContent 
+              content={recipeData.procedure.join('\n')}
+              imageUrls={recipeData.allImageUrls || []}
+              baseUrl={recipeData.recipeLink}
+            />
+          </Section>
+        )}
 
-        <Section title={recipeData.extraInfoTitle} titleContainerClassName="w-auto">
-          <div>
-            {recipeData.extraInfo.map((line, index) => (
-              <React.Fragment key={index}>
-                {parseMarkdownLinks(line)}
-                {index < recipeData.extraInfo.length - 1 && <br />}
-              </React.Fragment>
-            ))}
-          </div>
-        </Section>
+        {hasExtraInfo && (
+          <Section title={recipeData.extraInfoTitle} titleContainerClassName="w-auto">
+            <MarkdownContent 
+              content={recipeData.extraInfo.join('\n')}
+              imageUrls={recipeData.allImageUrls || []}
+              baseUrl={recipeData.recipeLink}
+            />
+          </Section>
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,9 @@ import { DotsThreeIcon } from '@/components/Icons';
 import { RecipeData, DEFAULT_RECIPE_DATA } from '@/types/recipeTypes';
 import { SearchBar } from '@/components/recipe/SearchBar';
 import { RecipeDisplay } from '@/components/recipe/RecipeDisplay';
+import { Section } from '@/components/recipe/Section';
+import MarkdownContent from '@/components/MarkdownContent';
+import { parseMarkdownLinks } from '@/utils/recipeUtils';
 
 export default function HomePage() {
   const [recipeData, setRecipeData] = useState<RecipeData>(DEFAULT_RECIPE_DATA);
@@ -15,11 +18,14 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState<string>("酸梅汤");
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const [hasSelectedRecipe, setHasSelectedRecipe] = useState<boolean>(false);
+  const [recipeImages, setRecipeImages] = useState<string[]>([]);
   const preventSearchRef = useRef(false);
 
   const handleSearchTermChange = (term: string) => {
     if (term !== searchTerm) {
-      if (searchTerm !== "" && hasSelectedRecipe) {
+      // Only set hasSelectedRecipe to false when completely clearing the search term
+      // This prevents losing the display when just editing the search
+      if (term.trim() === "") {
         setHasSelectedRecipe(false);
       }
     }
@@ -35,9 +41,14 @@ export default function HomePage() {
     try {
       const fullRecipe = await getRecipeById(recipeId);
       if (fullRecipe) {
-        // Setting search term here will not trigger search due to preventAutoSearchRef in SearchBar
         setSearchTerm(fullRecipe.name || "");
-        setHasSelectedRecipe(true);
+        
+        // Store all available image URLs including the main image
+        const allImages = [
+          ...(fullRecipe.imageUrl ? [fullRecipe.imageUrl] : []),
+          ...(fullRecipe.images || [])
+        ];
+        setRecipeImages(allImages);
         
         setRecipeData({
           pageTitle: "How to cook:",
@@ -56,7 +67,12 @@ export default function HomePage() {
           procedure: fullRecipe.procedure || [],
           extraInfoTitle: "附加内容",
           extraInfo: fullRecipe.extraInfo || [],
+          allImageUrls: allImages, // Add the images to the recipe data
+          sourceUrl: fullRecipe.sourceUrl
         });
+        
+        // Set hasSelectedRecipe flag to true when a recipe is selected
+        setHasSelectedRecipe(true);
       }
     } catch (err) {
       console.error('Error loading recipe details:', err);
@@ -88,6 +104,13 @@ export default function HomePage() {
             const fullRecipe = await getRecipeById(targetRecipe._id);
             
             if (fullRecipe) {
+              // Store all available image URLs
+              const allImages = [
+                ...(fullRecipe.imageUrl ? [fullRecipe.imageUrl] : []),
+                ...(fullRecipe.images || [])
+              ];
+              setRecipeImages(allImages);
+              
               setHasSelectedRecipe(true);
               setRecipeData({
                 pageTitle: "How to cook:",
@@ -106,6 +129,8 @@ export default function HomePage() {
                 procedure: fullRecipe.procedure || [],
                 extraInfoTitle: "附加内容",
                 extraInfo: fullRecipe.extraInfo || [],
+                allImageUrls: allImages,
+                sourceUrl: fullRecipe.sourceUrl
               });
             }
           }
@@ -165,9 +190,14 @@ export default function HomePage() {
             </div>
           )}
 
-          {searchTerm.trim() && hasSelectedRecipe && (
+          {/* Show recipe content either when a recipe was previously selected
+              OR when we've selected a recipe from search */}
+          {searchTerm.trim() && (hasSelectedRecipe || contentLoading) && (
             <RecipeDisplay 
-              recipeData={recipeData} 
+              recipeData={{
+                ...recipeData,
+                allImageUrls: recipeImages
+              }} 
               isLoading={contentLoading}
             />
           )}

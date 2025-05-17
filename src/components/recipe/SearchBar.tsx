@@ -59,6 +59,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     // Hide the search results panel immediately
     setSearchResultsVisible(false);
     setShowSearchResults(false);
+    setNoResultsFound(false); // Reset the no results state
     
     // Set flag to prevent auto-search when recipe name is updated
     preventAutoSearchRef.current = true;

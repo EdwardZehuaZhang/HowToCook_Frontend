@@ -6,7 +6,7 @@ const API_CONFIG = {
 };
 
 // Force using local backend during development
-let useLocalBackend = false; 
+let useLocalBackend = true; 
 
 /**
  * Get the current API URL based on configuration
@@ -68,6 +68,43 @@ export async function searchRecipes(query = '', category = '', page = 1, limit =
 }
 
 /**
+ * Extract and normalize all image URLs from a recipe
+ */
+export function extractRecipeImages(recipe) {
+  const images = [];
+  
+  // Add the main recipe image if available
+  if (recipe.imageUrl) {
+    images.push(recipe.imageUrl);
+  }
+  
+  // Look for image URLs in various content sections
+  const sections = [
+    recipe.description,
+    ...(recipe.materials || []),
+    ...(recipe.calculations || []),
+    ...(recipe.procedure || []),
+    ...(recipe.extraInfo || [])
+  ];
+
+  // Extract markdown image URLs using regex
+  const imageRegex = /!\[.*?\]\((.*?)\)/g;
+  for (const section of sections) {
+    if (typeof section === 'string') {
+      let match;
+      while ((match = imageRegex.exec(section)) !== null) {
+        const url = match[1];
+        if (url && !images.includes(url) && url.startsWith('http')) {
+          images.push(url);
+        }
+      }
+    }
+  }
+  
+  return images;
+}
+
+/**
  * Get a single recipe by ID
  */
 export async function getRecipeById(id) {
@@ -83,9 +120,13 @@ export async function getRecipeById(id) {
       throw new Error(`Network response was not ok. Status: ${response.status}`);
     }
     
-    const data = await response.json();
-    console.log(`Successfully fetched recipe:`, data);
-    return data;
+    const recipe = await response.json();
+    
+    // Add an 'images' property containing all image URLs
+    recipe.images = extractRecipeImages(recipe);
+    
+    console.log(`Successfully fetched recipe:`, recipe);
+    return recipe;
   } catch (error) {
     console.error(`Error fetching recipe with ID ${id}:`, error);
     return null;
