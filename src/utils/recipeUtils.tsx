@@ -136,23 +136,16 @@ export function replaceImagePaths(markdownText: string, baseUrl: string, allImag
  */
 export function normalizeRecipeContent(content: any[]): { text: string; level: number }[] {
   if (!content || !Array.isArray(content) || content.length === 0) {
-    console.debug('Recipe content is empty or not an array:', content);
     return [];
   }
-
-  console.debug('Normalizing recipe content, first item type:', typeof content[0], 
-    'isArray:', Array.isArray(content[0]), 
-    'value:', JSON.stringify(content[0]).substring(0, 100));
   
   // If the first item is a string, convert all items to objects with level 0
   if (typeof content[0] === 'string') {
-    console.debug('Content is array of strings, converting to hierarchical format');
     return content.map(text => ({ text, level: 0 }));
   }
   
   // If the first item has text property, assume it's already in the right format
   if (typeof content[0] === 'object' && content[0] !== null && 'text' in content[0]) {
-    console.debug('Content is already in hierarchical format');
     return content.map(item => {
       // Handle MongoDB number format if present
       let level = 0;
@@ -170,7 +163,6 @@ export function normalizeRecipeContent(content: any[]): { text: string; level: n
     });
   }
   
-  console.warn('Unrecognized content format:', JSON.stringify(content).substring(0, 200));
   return [];
 }
 
