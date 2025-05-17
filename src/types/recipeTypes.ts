@@ -1,24 +1,32 @@
 import { ReactNode } from 'react';
 
+export interface HierarchicalItem {
+  text: string;
+  level: number;
+}
+
 export interface RecipeData {
-  pageTitle: string;
+  _id: string;
+  name: string;
   recipeName: string;
-  recipeLink: string;
-  imageUrl: string | null;
-  imageAiHint: string;
-  description: string;
+  category: string;
+  difficulty: number;
   difficultyLabel: string;
-  difficulty?: number;
+  description?: string;
+  materials: string[] | HierarchicalItem[];
+  calculations: string[] | HierarchicalItem[];
+  procedure: string[] | HierarchicalItem[];
+  extraInfo: string[] | HierarchicalItem[];
+  imageUrl: string;
+  images?: string[];
+  allImageUrls?: string[];
+  sourceUrl: string;
+  recipeLink?: string;
   materialsTitle: string;
-  materials: string[];
   calculationsTitle: string;
-  calculations: string[];
   procedureTitle: string;
-  procedure: string[];
   extraInfoTitle: string;
-  extraInfo: string[];
-  allImageUrls?: string[]; // Add this to store all available images for the recipe
-  sourceUrl?: string;
+  lastUpdated?: Date;
 }
 
 export interface SectionProps {
@@ -29,21 +37,25 @@ export interface SectionProps {
 }
 
 export const DEFAULT_RECIPE_DATA: RecipeData = {
-  pageTitle: "How to cook:",
+  _id: "",
+  name: "",
   recipeName: "",
-  recipeLink: "#",
-  imageUrl: null,
-  imageAiHint: "",
-  description: "",
+  category: "",
+  difficulty: 0,
   difficultyLabel: "预估烹饪难度：",
-  difficulty: undefined,
-  materialsTitle: "必备原料和工具",
+  description: "",
   materials: [],
-  calculationsTitle: "计算",
   calculations: [],
-  procedureTitle: "操作",
   procedure: [],
-  extraInfoTitle: "附加内容",
   extraInfo: [],
-  allImageUrls: []
+  imageUrl: "",
+  images: [],
+  allImageUrls: [],
+  sourceUrl: "",
+  recipeLink: "#",
+  materialsTitle: "必备原料和工具",
+  calculationsTitle: "计算",
+  procedureTitle: "操作",
+  extraInfoTitle: "附加内容",
+  lastUpdated: undefined
 };

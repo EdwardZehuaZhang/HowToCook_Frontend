@@ -87,13 +87,20 @@ export function extractRecipeImages(recipe) {
     });
   }
   
+  // Extract content from possibly nested objects with text fields
+  const extractText = (item) => {
+    if (typeof item === 'string') return item;
+    if (item && typeof item === 'object' && 'text' in item) return item.text;
+    return '';
+  };
+  
   // Look for image URLs in various content sections
   const sections = [
     recipe.description,
-    ...(recipe.materials || []),
-    ...(recipe.calculations || []),
-    ...(recipe.procedure || []),
-    ...(recipe.extraInfo || [])
+    ...(Array.isArray(recipe.materials) ? recipe.materials.map(extractText) : []),
+    ...(Array.isArray(recipe.calculations) ? recipe.calculations.map(extractText) : []),
+    ...(Array.isArray(recipe.procedure) ? recipe.procedure.map(extractText) : []),
+    ...(Array.isArray(recipe.extraInfo) ? recipe.extraInfo.map(extractText) : [])
   ];
 
   // Extract markdown image URLs using regex
@@ -134,12 +141,82 @@ export async function getRecipeById(id) {
       throw new Error(`Network response was not ok. Status: ${response.status}`);
     }
     
-    const recipe = await response.json();
+    // Log the response headers to check for content-length
+    console.log('Response headers:', {
+      contentType: response.headers.get('content-type'),
+      contentLength: response.headers.get('content-length')
+    });
+    
+    // Get the complete response text
+    const responseText = await response.text();
+    console.log('Raw API response length:', responseText.length);
+    console.log('Raw API response preview:', responseText.substring(0, 500) + '...');
+    
+    // Parse the JSON response
+    let rawRecipe;
+    try {
+      rawRecipe = JSON.parse(responseText);
+      console.log('Recipe parsing successful, checking fields:');
+      console.log('Has materials:', Boolean(rawRecipe.materials));
+      console.log('Has procedure:', Boolean(rawRecipe.procedure));
+      console.log('Has calculations:', Boolean(rawRecipe.calculations));
+      console.log('Has extraInfo:', Boolean(rawRecipe.extraInfo));
+      
+      // Log array lengths if present
+      if (rawRecipe.materials) console.log('Materials length:', Array.isArray(rawRecipe.materials) ? rawRecipe.materials.length : 'not an array');
+      if (rawRecipe.procedure) console.log('Procedure length:', Array.isArray(rawRecipe.procedure) ? rawRecipe.procedure.length : 'not an array');
+    } catch (parseError) {
+      console.error('Error parsing recipe JSON:', parseError);
+      console.error('Response text causing error:', responseText);
+      throw parseError;
+    }
+    
+    // Import the trace utility dynamically to avoid SSR issues
+    const { traceRecipeData } = await import('@/utils/debugUtils');
+    traceRecipeData(rawRecipe, 'API Response Raw');
+    
+    // Create a normalized recipe with guaranteed arrays
+    const recipe = {
+      ...rawRecipe,
+      materials: Array.isArray(rawRecipe.materials) ? rawRecipe.materials : [],
+      procedure: Array.isArray(rawRecipe.procedure) ? rawRecipe.procedure : [],
+      calculations: Array.isArray(rawRecipe.calculations) ? rawRecipe.calculations : [],
+      extraInfo: Array.isArray(rawRecipe.extraInfo) ? rawRecipe.extraInfo : []
+    };
+    
+    // Trace after initial normalization
+    traceRecipeData(recipe, 'After Initial Array Normalization');
+    
+    // Check if arrays contain correctly structured objects, normalize if needed
+    ['materials', 'procedure', 'calculations', 'extraInfo'].forEach(field => {
+      if (recipe[field] && Array.isArray(recipe[field])) {
+        recipe[field] = recipe[field].map(item => {
+          // If the item is already an object with text property, return as is
+          if (typeof item === 'object' && item !== null && 'text' in item) {
+            return item;
+          }
+          // If the item is a string, convert to object with text property
+          if (typeof item === 'string') {
+            return { text: item, level: 0 };
+          }
+          // Default fallback
+          return { text: String(item || ''), level: 0 };
+        });
+      }
+    });
+    
+    // Trace after content normalization
+    traceRecipeData(recipe, 'After Content Structure Normalization');
+    
+    // Process MongoDB's number format if present
+    if (recipe.difficulty && typeof recipe.difficulty === 'object' && '$numberInt' in recipe.difficulty) {
+      recipe.difficulty = parseInt(recipe.difficulty.$numberInt);
+    }
     
     // Add an 'images' property containing all image URLs
     recipe.images = extractRecipeImages(recipe);
     
-    console.log(`Successfully fetched recipe:`, recipe);
+    console.log(`Successfully fetched and normalized recipe with ID: ${id}`);
     return recipe;
   } catch (error) {
     console.error(`Error fetching recipe with ID ${id}:`, error);

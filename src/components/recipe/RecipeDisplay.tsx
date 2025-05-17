@@ -1,17 +1,46 @@
-import React from 'react';
-import { RecipeData } from '@/types/recipeTypes';
+import React, { useEffect } from 'react';
+import { RecipeData, HierarchicalItem } from '@/types/recipeTypes';
 import { AsteriskIcon } from '@/components/Icons';
 import { Section, recipeHeadingFontSize, recipeDescriptionFontSize } from './Section';
 import SafeImage from '@/components/SafeImage';
 import MarkdownContent from '@/components/MarkdownContent';
-import { parseMarkdownLinks } from '@/utils/recipeUtils';
+import { parseMarkdownLinks, normalizeRecipeContent } from '@/utils/recipeUtils';
+import { traceRecipeData } from '@/utils/debugUtils';
 
 interface RecipeDisplayProps {
   recipeData: RecipeData;
   isLoading?: boolean;
 }
 
+// Helper function to check if an array has content
+const hasContent = (arr: any[] | undefined): boolean => {
+  return arr && Array.isArray(arr) && arr.length > 0;
+};
+
 export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoading = false }) => {
+  useEffect(() => {
+    // Trace recipe data at component mount
+    traceRecipeData(recipeData, 'RecipeDisplay Component');
+
+    // Enhanced debugging for recipe data structure
+    console.debug('Recipe data structure debug:', {
+      materialsType: recipeData.materials ? (Array.isArray(recipeData.materials) ? 
+        `Array(${recipeData.materials.length}) of ${typeof recipeData.materials[0]}` : typeof recipeData.materials) : 'undefined',
+      procedureType: recipeData.procedure ? (Array.isArray(recipeData.procedure) ? 
+        `Array(${recipeData.procedure.length}) of ${typeof recipeData.procedure[0]}` : typeof recipeData.procedure) : 'undefined',
+      calculationsType: recipeData.calculations ? (Array.isArray(recipeData.calculations) ? 
+        `Array(${recipeData.calculations.length}) of ${typeof recipeData.calculations[0]}` : typeof recipeData.calculations) : 'undefined',
+      extraInfoType: recipeData.extraInfo ? (Array.isArray(recipeData.extraInfo) ? 
+        `Array(${recipeData.extraInfo.length}) of ${typeof recipeData.extraInfo[0]}` : typeof recipeData.extraInfo) : 'undefined',
+    });
+    
+    if (recipeData.materials && recipeData.materials.length > 0) {
+      console.debug('First material item sample:', JSON.stringify(recipeData.materials[0]));
+    }
+    
+    console.debug('Full recipe data:', JSON.stringify(recipeData).substring(0, 500));
+  }, [recipeData]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center w-full py-20">
@@ -21,17 +50,19 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
   }
 
   // For debugging - check if sections have content
-  const hasMaterials = recipeData.materials && recipeData.materials.length > 0;
-  const hasCalculations = recipeData.calculations && recipeData.calculations.length > 0;
-  const hasProcedure = recipeData.procedure && recipeData.procedure.length > 0;
-  const hasExtraInfo = recipeData.extraInfo && recipeData.extraInfo.length > 0;
+  const hasMaterials = hasContent(recipeData.materials);
+  const hasCalculations = hasContent(recipeData.calculations);
+  const hasProcedure = hasContent(recipeData.procedure);
+  const hasExtraInfo = hasContent(recipeData.extraInfo);
   
   console.log('Recipe sections:', { 
     name: recipeData.recipeName,
     hasMaterials, 
     hasCalculations, 
     hasProcedure, 
-    hasExtraInfo 
+    hasExtraInfo,
+    materialsLength: hasMaterials ? recipeData.materials.length : 0,
+    procedureLength: hasProcedure ? recipeData.procedure.length : 0,
   });
 
   return (
@@ -93,9 +124,10 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
         {hasMaterials && (
           <Section title={recipeData.materialsTitle} titleContainerClassName="w-auto">
             <MarkdownContent 
-              content={recipeData.materials.join('\n')}
+              content={recipeData.materials}
               imageUrls={recipeData.allImageUrls || []}
-              baseUrl={recipeData.recipeLink}
+              baseUrl={recipeData.sourceUrl}
+              className="font-normal text-foreground leading-relaxed"
             />
           </Section>
         )}
@@ -103,9 +135,10 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
         {hasCalculations && (
           <Section title={recipeData.calculationsTitle} titleContainerClassName="w-auto">
             <MarkdownContent 
-              content={recipeData.calculations.join('\n')}
+              content={recipeData.calculations}
               imageUrls={recipeData.allImageUrls || []}
-              baseUrl={recipeData.recipeLink}
+              baseUrl={recipeData.sourceUrl}
+              className="font-normal text-foreground leading-relaxed"
             />
           </Section>
         )}
@@ -113,9 +146,10 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
         {hasProcedure && (
           <Section title={recipeData.procedureTitle} titleContainerClassName="w-auto">
             <MarkdownContent 
-              content={recipeData.procedure.join('\n')}
+              content={recipeData.procedure}
               imageUrls={recipeData.allImageUrls || []}
-              baseUrl={recipeData.recipeLink}
+              baseUrl={recipeData.sourceUrl}
+              className="font-normal text-foreground leading-relaxed"
             />
           </Section>
         )}
@@ -123,9 +157,10 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
         {hasExtraInfo && (
           <Section title={recipeData.extraInfoTitle} titleContainerClassName="w-auto">
             <MarkdownContent 
-              content={recipeData.extraInfo.join('\n')}
+              content={recipeData.extraInfo}
               imageUrls={recipeData.allImageUrls || []}
-              baseUrl={recipeData.recipeLink}
+              baseUrl={recipeData.sourceUrl}
+              className="font-normal text-foreground leading-relaxed"
             />
           </Section>
         )}

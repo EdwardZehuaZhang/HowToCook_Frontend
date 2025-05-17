@@ -6,8 +6,7 @@ import { DotsThreeIcon } from '@/components/Icons';
 import { RecipeData, DEFAULT_RECIPE_DATA } from '@/types/recipeTypes';
 import { SearchBar } from '@/components/recipe/SearchBar';
 import { RecipeDisplay } from '@/components/recipe/RecipeDisplay';
-// Keep only necessary imports
-import { parseMarkdownLinks } from '@/utils/recipeUtils';
+import { parseMarkdownLinks, normalizeRecipeContent } from '@/utils/recipeUtils';
 
 export default function HomePage() {
   const [recipeData, setRecipeData] = useState<RecipeData>(DEFAULT_RECIPE_DATA);
@@ -22,8 +21,6 @@ export default function HomePage() {
 
   const handleSearchTermChange = (term: string) => {
     if (term !== searchTerm) {
-      // Only set hasSelectedRecipe to false when completely clearing the search term
-      // This prevents losing the display when just editing the search
       if (term.trim() === "") {
         setHasSelectedRecipe(false);
       }
@@ -42,16 +39,27 @@ export default function HomePage() {
       if (fullRecipe) {
         setSearchTerm(fullRecipe.name || "");
         
-        // Store all available image URLs including the main image
         const allImages = [
           ...(fullRecipe.imageUrl ? [fullRecipe.imageUrl] : []),
           ...(fullRecipe.images || [])
         ];
         setRecipeImages(allImages);
         
+        console.debug('Recipe content debug:', {
+          materialsCount: fullRecipe.materials?.length || 0,
+          calculationsCount: fullRecipe.calculations?.length || 0,
+          procedureCount: fullRecipe.procedure?.length || 0,
+          extraInfoCount: fullRecipe.extraInfo?.length || 0,
+          materialsSample: fullRecipe.materials?.length > 0 ? 
+            JSON.stringify(fullRecipe.materials[0]).substring(0, 200) : 'none'
+        });
+        
         setRecipeData({
-          pageTitle: "How to cook:",
+          ...DEFAULT_RECIPE_DATA,
+          _id: fullRecipe._id || "",
+          name: fullRecipe.name || "",
           recipeName: fullRecipe.name || searchTerm,
+          category: fullRecipe.category || "",
           recipeLink: fullRecipe.sourceUrl || "#",
           imageUrl: fullRecipe.imageUrl || null,
           imageAiHint: fullRecipe.name || searchTerm,
@@ -66,11 +74,10 @@ export default function HomePage() {
           procedure: fullRecipe.procedure || [],
           extraInfoTitle: "附加内容",
           extraInfo: fullRecipe.extraInfo || [],
-          allImageUrls: allImages, // Add the images to the recipe data
+          allImageUrls: allImages,
           sourceUrl: fullRecipe.sourceUrl
         });
         
-        // Set hasSelectedRecipe flag to true when a recipe is selected
         setHasSelectedRecipe(true);
       }
     } catch (err) {
@@ -100,36 +107,59 @@ export default function HomePage() {
           
           if (searchResult.data && searchResult.data.length > 0) {
             const targetRecipe = searchResult.data[0];
+            console.log("Initial search found recipe with ID:", targetRecipe._id);
             const fullRecipe = await getRecipeById(targetRecipe._id);
             
             if (fullRecipe) {
-              // Store all available image URLs
+              // Debug full recipe data
+              console.log("Full recipe received:", {
+                id: fullRecipe._id,
+                name: fullRecipe.name,
+                hasAllArrays: Boolean(fullRecipe.materials && fullRecipe.procedure && 
+                                      fullRecipe.calculations && fullRecipe.extraInfo),
+                materialsLength: fullRecipe.materials?.length,
+                procedureLength: fullRecipe.procedure?.length,
+                calculationsLength: fullRecipe.calculations?.length,
+                extraInfoLength: fullRecipe.extraInfo?.length,
+                materialsType: fullRecipe.materials ? typeof fullRecipe.materials : 'undefined',
+                isArrayMaterials: Array.isArray(fullRecipe.materials)
+              });
+              
+              // Force arrays for all content sections if they're undefined
+              const normalizedRecipe = {
+                ...fullRecipe,
+                materials: Array.isArray(fullRecipe.materials) ? fullRecipe.materials : [],
+                procedure: Array.isArray(fullRecipe.procedure) ? fullRecipe.procedure : [],
+                calculations: Array.isArray(fullRecipe.calculations) ? fullRecipe.calculations : [],
+                extraInfo: Array.isArray(fullRecipe.extraInfo) ? fullRecipe.extraInfo : []
+              };
+              
               const allImages = [
-                ...(fullRecipe.imageUrl ? [fullRecipe.imageUrl] : []),
-                ...(fullRecipe.images || [])
+                ...(normalizedRecipe.imageUrl ? [normalizedRecipe.imageUrl] : []),
+                ...(normalizedRecipe.images || [])
               ];
               setRecipeImages(allImages);
               
               setHasSelectedRecipe(true);
               setRecipeData({
                 pageTitle: "How to cook:",
-                recipeName: fullRecipe.name || "酸梅汤",
-                recipeLink: fullRecipe.sourceUrl || "#",
-                imageUrl: fullRecipe.imageUrl || null,
+                recipeName: normalizedRecipe.name || "酸梅汤",
+                recipeLink: normalizedRecipe.sourceUrl || "#",
+                imageUrl: normalizedRecipe.imageUrl || null,
                 imageAiHint: "chinese plum soup",
-                description: fullRecipe.description || "No description available",
+                description: normalizedRecipe.description || "No description available",
                 difficultyLabel: "预估烹饪难度：",
-                difficulty: fullRecipe.difficulty,
+                difficulty: normalizedRecipe.difficulty,
                 materialsTitle: "必备原料和工具",
-                materials: fullRecipe.materials || [],
+                materials: normalizedRecipe.materials || [],
                 calculationsTitle: "计算",
-                calculations: fullRecipe.calculations || [],
+                calculations: normalizedRecipe.calculations || [],
                 procedureTitle: "操作",
-                procedure: fullRecipe.procedure || [],
+                procedure: normalizedRecipe.procedure || [],
                 extraInfoTitle: "附加内容",
-                extraInfo: fullRecipe.extraInfo || [],
+                extraInfo: normalizedRecipe.extraInfo || [],
                 allImageUrls: allImages,
-                sourceUrl: fullRecipe.sourceUrl
+                sourceUrl: normalizedRecipe.sourceUrl
               });
             }
           }
@@ -189,8 +219,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Show recipe content with reduced gap */}
-          <div className="mt-0"> {/* Reduced from mt-1 to mt-0 to decrease gap */}
+          <div className="mt-0">
             {searchTerm.trim() && (hasSelectedRecipe || contentLoading) && (
               <RecipeDisplay 
                 recipeData={{
