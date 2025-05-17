@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { fetchRecipes } from '@/services/api';
+import { HierarchicalItem, RecipeData } from '@/types/recipeTypes';
 
 /**
  * Parse markdown links and return React components
@@ -171,6 +172,25 @@ export function normalizeRecipeContent(content: any[]): { text: string; level: n
   
   console.warn('Unrecognized content format:', JSON.stringify(content).substring(0, 200));
   return [];
+}
+
+/**
+ * Ensures that recipe data has the proper hierarchical structure for all sections
+ */
+export function normalizeRecipeData(recipeData: RecipeData): RecipeData {
+  // Helper function to normalize the array items
+  const normalizeItems = (items: any[] | undefined): HierarchicalItem[] => {
+    if (!items || !Array.isArray(items)) return [];
+    return normalizeRecipeContent(items);
+  };
+  
+  return {
+    ...recipeData,
+    materials: normalizeItems(recipeData.materials),
+    procedure: normalizeItems(recipeData.procedure),
+    calculations: normalizeItems(recipeData.calculations),
+    extraInfo: normalizeItems(recipeData.extraInfo)
+  };
 }
 
 /**

@@ -6,7 +6,7 @@ import { DotsThreeIcon } from '@/components/Icons';
 import { RecipeData, DEFAULT_RECIPE_DATA } from '@/types/recipeTypes';
 import { SearchBar } from '@/components/recipe/SearchBar';
 import { RecipeDisplay } from '@/components/recipe/RecipeDisplay';
-import { parseMarkdownLinks, normalizeRecipeContent } from '@/utils/recipeUtils';
+import { parseMarkdownLinks, normalizeRecipeData } from '@/utils/recipeUtils';
 
 export default function HomePage() {
   const [recipeData, setRecipeData] = useState<RecipeData>(DEFAULT_RECIPE_DATA);
@@ -75,7 +75,8 @@ export default function HomePage() {
           extraInfoTitle: "附加内容",
           extraInfo: fullRecipe.extraInfo || [],
           allImageUrls: allImages,
-          sourceUrl: fullRecipe.sourceUrl
+          sourceUrl: fullRecipe.sourceUrl,
+          pageTitle: "How to cook:" // Add this line to keep the title visible
         });
         
         setHasSelectedRecipe(true);

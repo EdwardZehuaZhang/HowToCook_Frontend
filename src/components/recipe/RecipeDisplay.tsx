@@ -4,7 +4,7 @@ import { AsteriskIcon } from '@/components/Icons';
 import { Section, recipeHeadingFontSize, recipeDescriptionFontSize } from './Section';
 import SafeImage from '@/components/SafeImage';
 import MarkdownContent from '@/components/MarkdownContent';
-import { parseMarkdownLinks, normalizeRecipeContent } from '@/utils/recipeUtils';
+import { parseMarkdownLinks, normalizeRecipeData } from '@/utils/recipeUtils';
 import { traceRecipeData } from '@/utils/debugUtils';
 
 interface RecipeDisplayProps {
