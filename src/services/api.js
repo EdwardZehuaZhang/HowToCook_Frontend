@@ -2,7 +2,7 @@
 const API_CONFIG = {
   // Remove the /api suffix from base URLs and add it in individual requests
   remote: 'https://howtocook-backend-b5cb.onrender.com',
-  local: 'http://localhost:5000', 
+  local: 'http://localhost:5001', 
 };
 
 // Force using local backend during development
@@ -235,5 +235,39 @@ export async function getCategories() {
   } catch (error) {
     console.error('Error fetching categories:', error);
     return [];
+  }
+}
+
+/**
+ * Generate a recipe using AI based on user selections
+ */
+export async function generateRecipeWithAI(selections) {
+  try {
+    console.log('Sending recipe generation request:', selections);
+    
+    const response = await fetch(`${getApiUrl()}/api/recipes/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ selections }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || `Request failed with status ${response.status}`);
+    }
+
+    if (!data.success) {
+      throw new Error(data.message || 'Recipe generation failed');
+    }
+
+    console.log('Recipe generated successfully:', data.data.recipe.name);
+    return data.data;
+    
+  } catch (error) {
+    console.error('Error generating recipe:', error);
+    throw error;
   }
 }

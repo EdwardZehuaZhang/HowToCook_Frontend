@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { searchRecipes, getRecipeById } from '@/services/api';
 import { DotsThreeIcon } from '@/components/Icons';
 import { RecipeData, DEFAULT_RECIPE_DATA } from '@/types/recipeTypes';
@@ -62,7 +63,6 @@ export default function HomePage() {
           category: fullRecipe.category || "",
           recipeLink: fullRecipe.sourceUrl || "#",
           imageUrl: fullRecipe.imageUrl || null,
-          imageAiHint: fullRecipe.name || searchTerm,
           description: fullRecipe.description || "No description available",
           difficultyLabel: "预估烹饪难度：",
           difficulty: fullRecipe.difficulty,
@@ -75,8 +75,7 @@ export default function HomePage() {
           extraInfoTitle: "附加内容",
           extraInfo: fullRecipe.extraInfo || [],
           allImageUrls: allImages,
-          sourceUrl: fullRecipe.sourceUrl,
-          pageTitle: "How to cook:" // Add this line to keep the title visible
+          sourceUrl: fullRecipe.sourceUrl
         });
         
         setHasSelectedRecipe(true);
@@ -143,11 +142,13 @@ export default function HomePage() {
               
               setHasSelectedRecipe(true);
               setRecipeData({
-                pageTitle: "How to cook:",
+                ...DEFAULT_RECIPE_DATA,
+                _id: normalizedRecipe._id || "",
+                name: normalizedRecipe.name || "酸梅汤",
                 recipeName: normalizedRecipe.name || "酸梅汤",
+                category: normalizedRecipe.category || "",
                 recipeLink: normalizedRecipe.sourceUrl || "#",
                 imageUrl: normalizedRecipe.imageUrl || null,
-                imageAiHint: "chinese plum soup",
                 description: normalizedRecipe.description || "No description available",
                 difficultyLabel: "预估烹饪难度：",
                 difficulty: normalizedRecipe.difficulty,
@@ -196,7 +197,9 @@ export default function HomePage() {
     <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
       <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[100px]">
         <div className="self-end">
-          <DotsThreeIcon width={36} height={36} className="text-foreground" />
+          <Link href="/menu" aria-label="Open menu">
+            <DotsThreeIcon width={36} height={36} className="text-foreground cursor-pointer hover:opacity-75 transition-opacity" />
+          </Link>
         </div>
 
         <div className="flex flex-col items-start gap-3 self-stretch w-full">
@@ -204,7 +207,7 @@ export default function HomePage() {
             className="font-sans font-normal text-foreground"
             style={{ fontSize: '21px' }}
           >
-            {recipeData.pageTitle}
+            How to cook:
           </h2>
 
           <SearchBar 
