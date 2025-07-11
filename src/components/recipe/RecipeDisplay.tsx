@@ -10,6 +10,7 @@ import { traceRecipeData } from '@/utils/debugUtils';
 interface RecipeDisplayProps {
   recipeData: RecipeData;
   isLoading?: boolean;
+  showRecipeName?: boolean; // New prop to control recipe name heading display
 }
 
 // Helper function to check if an array has content
@@ -17,7 +18,7 @@ const hasContent = (arr: any[] | undefined): boolean => {
   return arr && Array.isArray(arr) && arr.length > 0;
 };
 
-export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoading = false }) => {
+export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoading = false, showRecipeName = false }) => {
   // We'll keep the trace function for development debugging but remove the excessive console logs
   useEffect(() => {
     traceRecipeData(recipeData, 'RecipeDisplay Component');
@@ -38,6 +39,16 @@ export const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipeData, isLoad
 
   return (
     <div className="flex flex-col items-start gap-0 self-stretch w-full">
+      {/* Recipe Name Heading - only show when showRecipeName is true */}
+      {showRecipeName && recipeData.recipeName && (
+        <h2
+          className="font-sans font-normal text-foreground mb-3"
+          style={{ fontSize: '27px' }}
+        >
+          {recipeData.recipeName}
+        </h2>
+      )}
+
       {recipeData.imageUrl && (
         <div className="relative self-stretch w-full overflow-hidden mt-1 flex justify-center items-center">
           <SafeImage

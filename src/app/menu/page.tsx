@@ -19,12 +19,66 @@ export default function MenuPage() {
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [selectedModes, setSelectedModes] = useState<string[]>([]);
 
+  // State for "其他" input fields
+  const [customInputs, setCustomInputs] = useState<{[key: string]: string}>({
+    vegetables: '',
+    meats: '',
+    staples: '',
+    equipment: '',
+    modes: ''
+  });
+
+  const [showingInputs, setShowingInputs] = useState<{[key: string]: boolean}>({
+    vegetables: false,
+    meats: false,
+    staples: false,
+    equipment: false,
+    modes: false
+  });
+
   // Helper function to toggle selection
   const toggleSelection = (item: string, selectedItems: string[], setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>) => {
     if (selectedItems.includes(item)) {
       setSelectedItems(selectedItems.filter(i => i !== item));
     } else {
       setSelectedItems([...selectedItems, item]);
+    }
+  };
+
+  // Handle "其他" button click
+  const handleOtherClick = (category: string) => {
+    setShowingInputs(prev => ({ ...prev, [category]: true }));
+  };
+
+  // Handle custom input submission
+  const handleCustomInputSubmit = (category: string, value: string) => {
+    if (value.trim()) {
+      const setterMap = {
+        vegetables: setSelectedVegetables,
+        meats: setSelectedMeats,
+        staples: setSelectedStaples,
+        equipment: setSelectedEquipment,
+        modes: setSelectedModes
+      };
+      
+      const setter = setterMap[category as keyof typeof setterMap];
+      if (setter) {
+        setter(prev => [...prev, value.trim()]);
+      }
+    }
+    
+    // Reset input and hide it
+    setCustomInputs(prev => ({ ...prev, [category]: '' }));
+    setShowingInputs(prev => ({ ...prev, [category]: false }));
+  };
+
+  // Handle input key press
+  const handleInputKeyPress = (e: React.KeyboardEvent, category: string) => {
+    if (e.key === 'Enter') {
+      handleCustomInputSubmit(category, customInputs[category]);
+    } else if (e.key === 'Escape') {
+      setCustomInputs(prev => ({ ...prev, [category]: '' }));
+      setShowingInputs(prev => ({ ...prev, [category]: false }));
     }
   };
 
@@ -52,18 +106,43 @@ export default function MenuPage() {
   // Convert generated recipe to RecipeData format
   const convertToRecipeData = (generatedData: any): RecipeData => {
     const recipe = generatedData.recipe;
+    
+    // Helper function to add bullet points to array items
+    const addBulletPoints = (items: any[]) => {
+      return items.map(item => {
+        if (typeof item === 'string') {
+          return { text: item.startsWith('- ') ? item : `- ${item}`, level: 0 };
+        } else if (item && typeof item === 'object' && 'text' in item) {
+          return { ...item, text: item.text.startsWith('- ') ? item.text : `- ${item.text}` };
+        }
+        return { text: `- ${String(item)}`, level: 0 };
+      });
+    };
+
+    // Helper function for extraInfo (no bullet points)
+    const formatExtraInfo = (items: any[]) => {
+      return items.map(item => {
+        if (typeof item === 'string') {
+          return { text: item, level: 0 };
+        } else if (item && typeof item === 'object' && 'text' in item) {
+          return { ...item };
+        }
+        return { text: String(item), level: 0 };
+      });
+    };
+    
     return {
       _id: 'generated-' + Date.now(),
       name: recipe.name,
       recipeName: recipe.name,
       category: recipe.category || 'AI生成',
       difficulty: recipe.difficulty || 1,
-      difficultyLabel: `预估烹饪难度：${'★'.repeat(recipe.difficulty || 1)}`,
+      difficultyLabel: '预估烹饪难度：', // Keep the text but stars will be rendered separately
       description: recipe.description,
-      materials: recipe.materials || [],
-      calculations: recipe.calculations || [],
-      procedure: recipe.procedure || [],
-      extraInfo: recipe.extraInfo || [],
+      materials: addBulletPoints(recipe.materials || []),
+      calculations: addBulletPoints(recipe.calculations || []),
+      procedure: addBulletPoints(recipe.procedure || []),
+      extraInfo: formatExtraInfo(recipe.extraInfo || []),
       imageUrl: recipe.imageUrl || '',
       allImageUrls: recipe.allImageUrls || [],
       sourceUrl: recipe.sourceUrl || '#',
@@ -79,6 +158,63 @@ export default function MenuPage() {
   const staples = ['面食', '面包', '米', '方便面'];
   const equipment = ['烤箱', '空气炸锅', '微波炉', '电饭煲', '一口能炒又能煮的大锅'];
   const modes = ['模糊匹配', '严格匹配', '生存模式'];
+
+  // Component to render a bubble section with "其他" option
+  const renderBubbleSection = (
+    items: string[], 
+    selectedItems: string[], 
+    setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>,
+    category: string
+  ) => (
+    <div className="flex flex-wrap w-full items-start gap-[6px] relative">
+      {items.map((item) => (
+        <Bubble
+          key={item}
+          isSelected={selectedItems.includes(item)}
+          onClick={() => toggleSelection(item, selectedItems, setSelectedItems)}
+        >
+          {item}
+        </Bubble>
+      ))}
+      
+      {/* Custom items added by user */}
+      {selectedItems
+        .filter(item => !items.includes(item))
+        .map((customItem) => (
+          <Bubble
+            key={customItem}
+            isSelected={true}
+            onClick={() => toggleSelection(customItem, selectedItems, setSelectedItems)}
+          >
+            {customItem}
+          </Bubble>
+        ))}
+      
+      {/* "其他" button or input field */}
+      {showingInputs[category] ? (
+        <div className="bg-background inline-flex h-9 items-center justify-start px-3 py-2 rounded-[75px] border border-solid border-foreground">
+          <input
+            type="text"
+            value={customInputs[category]}
+            onChange={(e) => setCustomInputs(prev => ({ ...prev, [category]: e.target.value }))}
+            onKeyDown={(e) => handleInputKeyPress(e, category)}
+            onBlur={() => handleCustomInputSubmit(category, customInputs[category])}
+            placeholder="请输入"
+            className="bg-transparent text-foreground text-[14.8px] outline-none border-none text-left"
+            style={{ width: `${Math.max(5, customInputs[category].length + 1)}ch` }}
+            autoFocus
+          />
+        </div>
+      ) : (
+        <Bubble
+          isSelected={false}
+          onClick={() => handleOtherClick(category)}
+        >
+          其他
+        </Bubble>
+      )}
+    </div>
+  );
 
   return (
     <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
@@ -100,59 +236,19 @@ export default function MenuPage() {
 
         <div className="flex flex-col items-start gap-6 self-stretch w-full mt-4">
           <Section title="蔬菜">
-            <div className="flex flex-wrap w-full items-start gap-[6px] relative">
-              {vegetables.map((vegetable) => (
-                <Bubble
-                  key={vegetable}
-                  isSelected={selectedVegetables.includes(vegetable)}
-                  onClick={() => toggleSelection(vegetable, selectedVegetables, setSelectedVegetables)}
-                >
-                  {vegetable}
-                </Bubble>
-              ))}
-            </div>
+            {renderBubbleSection(vegetables, selectedVegetables, setSelectedVegetables, 'vegetables')}
           </Section>
 
           <Section title="肉类">
-            <div className="flex flex-wrap w-full items-start gap-[6px] relative">
-              {meats.map((meat) => (
-                <Bubble
-                  key={meat}
-                  isSelected={selectedMeats.includes(meat)}
-                  onClick={() => toggleSelection(meat, selectedMeats, setSelectedMeats)}
-                >
-                  {meat}
-                </Bubble>
-              ))}
-            </div>
+            {renderBubbleSection(meats, selectedMeats, setSelectedMeats, 'meats')}
           </Section>
 
           <Section title="主食">
-            <div className="flex flex-wrap w-full items-start gap-[6px] relative">
-              {staples.map((staple) => (
-                <Bubble
-                  key={staple}
-                  isSelected={selectedStaples.includes(staple)}
-                  onClick={() => toggleSelection(staple, selectedStaples, setSelectedStaples)}
-                >
-                  {staple}
-                </Bubble>
-              ))}
-            </div>
+            {renderBubbleSection(staples, selectedStaples, setSelectedStaples, 'staples')}
           </Section>
 
           <Section title="厨具">
-            <div className="flex flex-wrap w-full items-start gap-[6px] relative">
-              {equipment.map((item) => (
-                <Bubble
-                  key={item}
-                  isSelected={selectedEquipment.includes(item)}
-                  onClick={() => toggleSelection(item, selectedEquipment, setSelectedEquipment)}
-                >
-                  {item}
-                </Bubble>
-              ))}
-            </div>
+            {renderBubbleSection(equipment, selectedEquipment, setSelectedEquipment, 'equipment')}
           </Section>
 
           <Section title="模式">
@@ -170,8 +266,8 @@ export default function MenuPage() {
           </Section>
 
           {/* Generate Recipe Button */}
-          <div className="flex flex-col items-end gap-[7px] self-stretch w-full relative mt-6">
-            <div className="flex flex-col items-start gap-5 self-stretch w-full relative">
+          <div className="flex flex-col items-end gap-[7px] self-stretch w-full relative mt-4">
+            <div className="flex flex-col items-start gap-3 self-stretch w-full relative">
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md w-full">
                   <p className="text-sm">{error}</p>
@@ -182,7 +278,10 @@ export default function MenuPage() {
                 disabled={isGenerating}
                 className="flex items-center justify-center gap-2.5 p-2 self-stretch w-full bg-background rounded-[75px] border border-solid border-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="text-foreground text-[21px] relative w-fit font-sans font-normal text-center tracking-[0] leading-[normal]">
+                <div className="flex items-center justify-center gap-2 text-foreground text-[21px] relative w-fit font-sans font-normal text-center tracking-[0] leading-[normal]">
+                  {isGenerating && (
+                    <div className="w-4 h-4 border border-t-transparent border-foreground rounded-full animate-spin"></div>
+                  )}
                   {isGenerating ? '生成中...' : '生成菜谱'}
                 </div>
               </button>
@@ -191,10 +290,11 @@ export default function MenuPage() {
 
           {/* Generated Recipe Display */}
           {generatedRecipe && (
-            <div className="flex flex-col items-start gap-4 self-stretch w-full mt-8">
+            <div className="flex flex-col items-start gap-4 self-stretch w-full mt-4">
               <RecipeDisplay 
                 recipeData={convertToRecipeData(generatedRecipe)} 
                 isLoading={false}
+                showRecipeName={true}
               />
             </div>
           )}
