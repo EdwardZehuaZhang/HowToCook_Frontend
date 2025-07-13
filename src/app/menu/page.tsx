@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { DotsThreeIcon } from '@/components/Icons';
+import { NavigationDropdown } from '@/components/ui/NavigationDropdown';
 import { Section } from '@/components/recipe/Section';
 import { Bubble } from '@/components/ui/bubble';
 import { useRecipeGeneration } from '@/hooks/useRecipeGeneration';
@@ -36,12 +37,35 @@ export default function MenuPage() {
     modes: false
   });
 
+  // Helper function to calculate text width for dynamic input sizing
+  const getTextWidth = (text: string, category: string) => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.font = '14.8px sans-serif';
+      const width = context.measureText(text || '请输入').width;
+      return Math.max(width + 20, 50); // Add padding and minimum width
+    }
+    return 50; // Fallback width
+  };
+
   // Helper function to toggle selection
   const toggleSelection = (item: string, selectedItems: string[], setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>) => {
     if (selectedItems.includes(item)) {
       setSelectedItems(selectedItems.filter(i => i !== item));
     } else {
       setSelectedItems([...selectedItems, item]);
+    }
+  };
+
+  // Helper function to toggle selection for modes (only one selection allowed)
+  const toggleModeSelection = (item: string, selectedItems: string[], setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>) => {
+    if (selectedItems.includes(item)) {
+      // If clicking the already selected item, deselect it
+      setSelectedItems([]);
+    } else {
+      // If clicking a different item, select only that item
+      setSelectedItems([item]);
     }
   };
 
@@ -157,7 +181,7 @@ export default function MenuPage() {
   const meats = ['午餐肉', '香肠', '腊肠', '鸡肉', '猪肉', '鸡蛋', '虾', '牛肉', '骨头', '鱼'];
   const staples = ['面食', '面包', '米', '方便面'];
   const equipment = ['烤箱', '空气炸锅', '微波炉', '电饭煲', '一口能炒又能煮的大锅'];
-  const modes = ['模糊匹配', '严格匹配', '生存模式'];
+  const modes = ['模糊匹配', '严格匹配'];
 
   // Component to render a bubble section with "其他" option
   const renderBubbleSection = (
@@ -192,7 +216,12 @@ export default function MenuPage() {
       
       {/* "其他" button or input field */}
       {showingInputs[category] ? (
-        <div className="bg-background inline-flex h-9 items-center justify-start px-3 py-2 rounded-[75px] border border-solid border-foreground">
+        <div 
+          className="bg-background inline-flex h-9 items-center justify-center rounded-[75px] border border-solid border-foreground"
+          style={{ 
+            width: `${getTextWidth(customInputs[category], category)}px`
+          }}
+        >
           <input
             type="text"
             value={customInputs[category]}
@@ -200,8 +229,7 @@ export default function MenuPage() {
             onKeyDown={(e) => handleInputKeyPress(e, category)}
             onBlur={() => handleCustomInputSubmit(category, customInputs[category])}
             placeholder="请输入"
-            className="bg-transparent text-foreground text-[14.8px] outline-none border-none text-left"
-            style={{ width: `${Math.max(5, customInputs[category].length + 1)}ch` }}
+            className="bg-transparent text-foreground text-[14.8px] outline-none border-none text-center w-full px-2"
             autoFocus
           />
         </div>
@@ -217,12 +245,10 @@ export default function MenuPage() {
   );
 
   return (
-    <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
-      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[100px]">
+    <div className="bg-card min-h-screen font-sans">
+      <div className="flex flex-col items-stretch gap-[7px] relative pt-[27px] px-[27px] pb-[100px]">
         <div className="self-end">
-          <Link href="/" aria-label="Go back to main page">
-            <DotsThreeIcon width={36} height={36} className="text-foreground cursor-pointer hover:opacity-75 transition-opacity" />
-          </Link>
+          <NavigationDropdown />
         </div>
 
         <div className="flex flex-col items-start gap-3 self-stretch w-full">
@@ -257,7 +283,7 @@ export default function MenuPage() {
                 <Bubble
                   key={mode}
                   isSelected={selectedModes.includes(mode)}
-                  onClick={() => toggleSelection(mode, selectedModes, setSelectedModes)}
+                  onClick={() => toggleModeSelection(mode, selectedModes, setSelectedModes)}
                 >
                   {mode}
                 </Bubble>

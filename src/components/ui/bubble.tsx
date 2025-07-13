@@ -20,7 +20,7 @@ export const Bubble: React.FC<BubbleProps> = ({
         "inline-flex h-9 items-center justify-center gap-2.5 p-2 rounded-[75px] border border-solid border-foreground transition-colors cursor-pointer",
         isSelected 
           ? "bg-foreground text-background" 
-          : "bg-background text-foreground hover:bg-muted",
+          : "bg-card text-foreground hover:bg-muted",
         className
       )}
       onClick={onClick}

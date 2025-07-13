@@ -28,6 +28,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResultsVisible, setSearchResultsVisible] = useState(false);
   const [noResultsFound, setNoResultsFound] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false); // Track user interaction
   const currentSearchRef = useRef<AbortController | null>(null);
   const preventAutoSearchRef = useRef<boolean>(false); // New ref to prevent auto-search
 
@@ -44,6 +45,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       currentSearchRef.current.abort();
       currentSearchRef.current = null;
     }
+    
+    // Reset user interaction flag so dropdown won't show until user interacts again
+    setHasUserInteracted(false);
     
     // After fade animation completes, hide the panel and clear results
     setTimeout(() => {
@@ -76,6 +80,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   useEffect(() => {
     // Skip search effect if prevention flag is set
     if (preventAutoSearchRef.current) {
+      return;
+    }
+
+    // Don't show dropdown on initial load - only after user interaction
+    if (!hasUserInteracted) {
       return;
     }
 
@@ -118,12 +127,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           setNoResultsFound(false);
           
           // Use the signal for the fetch request
-          const results = await searchRecipes(searchTerm, '', 1, 10, signal);
+          const results = await searchRecipes(searchTerm, '', 1, 10, signal as any);
           
           // Only update results if the search hasn't been aborted
           if (!signal.aborted) {
             if (results.data && results.data.length > 0) {
-              setSearchResults(results.data.map(recipe => ({ 
+              setSearchResults(results.data.map((recipe: any) => ({ 
                 _id: recipe._id, 
                 name: recipe.name 
               })));
@@ -161,7 +170,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => onSearchTermChange(e.target.value)}
+            onChange={(e) => {
+              setHasUserInteracted(true); // Mark that user has interacted
+              onSearchTermChange(e.target.value);
+            }}
+            onFocus={() => setHasUserInteracted(true)} // Also track focus events
             placeholder="搜索食谱..."
             className="w-full font-normal text-foreground bg-transparent border-0 outline-none truncate"
             style={{ fontSize: '27px' }}

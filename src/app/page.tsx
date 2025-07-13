@@ -4,10 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { searchRecipes, getRecipeById } from '@/services/api';
 import { DotsThreeIcon } from '@/components/Icons';
+import { NavigationDropdown } from '@/components/ui/NavigationDropdown';
 import { RecipeData, DEFAULT_RECIPE_DATA } from '@/types/recipeTypes';
 import { SearchBar } from '@/components/recipe/SearchBar';
 import { RecipeDisplay } from '@/components/recipe/RecipeDisplay';
 import { parseMarkdownLinks, normalizeRecipeData } from '@/utils/recipeUtils';
+import { getInitialRecipeInfo, saveLastViewedRecipe } from '@/utils/recipeStorage';
 
 export default function HomePage() {
   const [recipeData, setRecipeData] = useState<RecipeData>(DEFAULT_RECIPE_DATA);
@@ -79,6 +81,15 @@ export default function HomePage() {
         });
         
         setHasSelectedRecipe(true);
+        
+        // Save this recipe as the last viewed for future visits
+        if (fullRecipe._id && fullRecipe.name) {
+          saveLastViewedRecipe(
+            fullRecipe._id, 
+            fullRecipe.name, 
+            fullRecipe.name || searchTerm
+          );
+        }
       }
     } catch (err) {
       console.error('Error loading recipe details:', err);
@@ -93,7 +104,9 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    setSearchTerm("酸梅汤");
+    // Get the initial recipe info (either last viewed or default)
+    const initialInfo = getInitialRecipeInfo();
+    setSearchTerm(initialInfo.searchTerm);
   }, []); 
 
   useEffect(() => {
@@ -103,20 +116,43 @@ export default function HomePage() {
           console.log("Loading initial recipe...");
           setContentLoading(true);
           
-          const searchResult = await searchRecipes("酸梅汤");
+          // Get the initial recipe info (either last viewed or default)
+          const initialInfo = getInitialRecipeInfo();
           
-          if (searchResult.data && searchResult.data.length > 0) {
-            const targetRecipe = searchResult.data[0];
-            console.log("Initial search found recipe with ID:", targetRecipe._id);
-            const fullRecipe = await getRecipeById(targetRecipe._id);
+          let fullRecipe = null;
+          
+          // If we have a stored recipe ID, try to load it directly
+          if (initialInfo.recipeId) {
+            console.log("Loading last viewed recipe with ID:", initialInfo.recipeId);
+            try {
+              fullRecipe = await getRecipeById(initialInfo.recipeId);
+              if (fullRecipe) {
+                console.log("Successfully loaded last viewed recipe:", fullRecipe.name);
+              }
+            } catch (error) {
+              console.log("Failed to load last viewed recipe, falling back to search:", error);
+            }
+          }
+          
+          // If no stored recipe or failed to load, search by term
+          if (!fullRecipe) {
+            console.log("Searching for recipe:", initialInfo.searchTerm);
+            const searchResult = await searchRecipes(initialInfo.searchTerm);
             
-            if (fullRecipe) {
-              // Debug full recipe data
-              console.log("Full recipe received:", {
-                id: fullRecipe._id,
-                name: fullRecipe.name,
-                hasAllArrays: Boolean(fullRecipe.materials && fullRecipe.procedure && 
-                                      fullRecipe.calculations && fullRecipe.extraInfo),
+            if (searchResult.data && searchResult.data.length > 0) {
+              const targetRecipe = searchResult.data[0];
+              console.log("Search found recipe with ID:", targetRecipe._id);
+              fullRecipe = await getRecipeById(targetRecipe._id);
+            }
+          }
+          
+          if (fullRecipe) {
+            // Debug full recipe data
+            console.log("Full recipe received:", {
+              id: fullRecipe._id,
+              name: fullRecipe.name,
+              hasAllArrays: Boolean(fullRecipe.materials && fullRecipe.procedure && 
+                                    fullRecipe.calculations && fullRecipe.extraInfo),
                 materialsLength: fullRecipe.materials?.length,
                 procedureLength: fullRecipe.procedure?.length,
                 calculationsLength: fullRecipe.calculations?.length,
@@ -144,8 +180,8 @@ export default function HomePage() {
               setRecipeData({
                 ...DEFAULT_RECIPE_DATA,
                 _id: normalizedRecipe._id || "",
-                name: normalizedRecipe.name || "酸梅汤",
-                recipeName: normalizedRecipe.name || "酸梅汤",
+                name: normalizedRecipe.name || initialInfo.searchTerm,
+                recipeName: normalizedRecipe.name || initialInfo.searchTerm,
                 category: normalizedRecipe.category || "",
                 recipeLink: normalizedRecipe.sourceUrl || "#",
                 imageUrl: normalizedRecipe.imageUrl || null,
@@ -163,8 +199,16 @@ export default function HomePage() {
                 allImageUrls: allImages,
                 sourceUrl: normalizedRecipe.sourceUrl
               });
+              
+              // Save this recipe as the last viewed for future visits
+              if (normalizedRecipe._id && normalizedRecipe.name) {
+                saveLastViewedRecipe(
+                  normalizedRecipe._id, 
+                  normalizedRecipe.name, 
+                  initialInfo.searchTerm
+                );
+              }
             }
-          }
         } catch (err) {
           console.error('Error in initial recipe load:', err);
         } finally {
@@ -194,12 +238,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className="bg-card border border-solid border-border w-[375px] h-auto mx-auto shadow-lg rounded-md font-sans">
-      <div className="flex flex-col w-[332px] items-stretch gap-[7px] relative top-[27px] left-[23px] pb-[100px]">
+    <div className="bg-card min-h-screen font-sans">
+      <div className="flex flex-col items-stretch gap-[7px] relative pt-[27px] px-[27px] pb-[100px]">
         <div className="self-end">
-          <Link href="/menu" aria-label="Open menu">
-            <DotsThreeIcon width={36} height={36} className="text-foreground cursor-pointer hover:opacity-75 transition-opacity" />
-          </Link>
+          <NavigationDropdown />
         </div>
 
         <div className="flex flex-col items-start gap-3 self-stretch w-full">
