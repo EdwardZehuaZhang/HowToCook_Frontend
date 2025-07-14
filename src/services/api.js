@@ -1,26 +1,35 @@
-// Configuration for API endpoints
+// Configuration for API endpoints from environment variables
 const API_CONFIG = {
-  // Remove the /api suffix from base URLs and add it in individual requests
-  remote: 'https://howtocook-backend-b5cb.onrender.com',
-  local: 'http://localhost:5001', 
+  remote: process.env.NEXT_PUBLIC_REMOTE_BACKEND_URL || 'https://howtocook-backend-b5cb.onrender.com',
+  local: process.env.NEXT_PUBLIC_LOCAL_BACKEND_URL || 'http://localhost:5001', 
 };
 
-// Force using local backend during development
-let useLocalBackend = true; 
+// 🎯 EASY SWITCH: Change NEXT_PUBLIC_BACKEND_MODE in .env.local
+// Values: "local" or "remote"
+const BACKEND_MODE = process.env.NEXT_PUBLIC_BACKEND_MODE || "local";
 
 /**
- * Get the current API URL based on configuration
+ * Get the current API URL based on environment configuration
  */
 export function getApiUrl() {
-  return useLocalBackend ? API_CONFIG.local : API_CONFIG.remote;
+  const url = API_CONFIG[BACKEND_MODE];
+  console.log(`🔗 Using ${BACKEND_MODE} backend: ${url}`);
+  return url;
 }
 
 /**
- * Switch between local and remote backend
+ * Get current backend mode
+ */
+export function getBackendMode() {
+  return BACKEND_MODE;
+}
+
+/**
+ * Legacy function for backward compatibility
  */
 export function setUseLocalBackend(useLocal) {
-  useLocalBackend = useLocal;
-  console.log(`Using ${useLocalBackend ? 'local' : 'remote'} backend at: ${getApiUrl()}`);
+  console.log(`Note: Use BACKEND_MODE variable in api.js to switch backends`);
+  console.log(`Current mode: ${BACKEND_MODE}, URL: ${getApiUrl()}`);
 }
 
 /**
