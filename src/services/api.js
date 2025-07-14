@@ -6,7 +6,7 @@ const API_CONFIG = {
 
 // 🎯 EASY SWITCH: Change NEXT_PUBLIC_BACKEND_MODE in .env.local
 // Values: "local" or "remote"
-const BACKEND_MODE = process.env.NEXT_PUBLIC_BACKEND_MODE || "local";
+const BACKEND_MODE = process.env.NEXT_PUBLIC_BACKEND_MODE || "remote";
 
 /**
  * Get the current API URL based on environment configuration
