@@ -30,7 +30,23 @@ const ibmPlexMono = localFont({
 
 export const metadata: Metadata = {
   title: 'HowToCook',
-  description: 'Learn how to cook delicious recipes step by step.',
+  description: 'Discover and generate delicious recipes with AI-powered assistance',
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'HowToCook',
+  },
+  themeColor: '#f97316',
 };
 
 export default function RootLayout({
